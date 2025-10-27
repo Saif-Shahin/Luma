@@ -11,6 +11,8 @@ function RemoteCalibration() {
         { button: 'DOWN', symbol: '↓', label: 'Down' },
         { button: 'LEFT', symbol: '←', label: 'Left' },
         { button: 'OK', symbol: 'OK', label: 'OK/Select' },
+        { button: 'CHANNEL_UP', symbol: 'CH+', label: 'Channel Up' },
+        { button: 'CHANNEL_DOWN', symbol: 'CH−', label: 'Channel Down' },
     ];
 
     const currentStep = steps[remoteCalibrationStep];

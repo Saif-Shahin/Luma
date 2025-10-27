@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useApp } from '../../context/AppContext';
+import OnScreenKeyboard from './OnScreenKeyboard';
 
 function LocationSetup() {
-    const { updateState, nextSetupStep } = useApp();
-    const [city, setCity] = useState('');
+    const { state } = useApp();
+    const { keyboardInput, selectedCityIndex } = state;
 
     // Mock cities for demonstration
     const mockCities = [
@@ -15,61 +16,59 @@ function LocationSetup() {
         { name: 'London', country: 'UK', lat: 51.5074, lon: -0.1278 },
     ];
 
-    const filteredCities = city
-        ? mockCities.filter(c => c.name.toLowerCase().includes(city.toLowerCase()))
+    // Filter cities based on keyboard input
+    const filteredCities = keyboardInput
+        ? mockCities.filter(c => c.name.toLowerCase().includes(keyboardInput.toLowerCase()))
         : mockCities.slice(0, 3);
-
-    const handleSelectCity = (selectedCity) => {
-        updateState({
-            location: {
-                city: selectedCity.name,
-                country: selectedCity.country,
-                lat: selectedCity.lat,
-                lon: selectedCity.lon,
-            },
-        });
-        nextSetupStep();
-    };
 
     return (
         <div className="w-full h-full flex items-center justify-center screen-transition">
-            <div className="text-center max-w-2xl w-full px-8">
+            <div className="text-center max-w-3xl w-full px-8">
                 <h1 className="text-white text-5xl font-bold mb-8">Set Your Location</h1>
                 <p className="text-gray-300 text-2xl mb-12">
-                    This helps us show accurate weather information
+                    Type your city name using the on-screen keyboard
                 </p>
 
+                {/* On-Screen Keyboard */}
                 <div className="mb-8">
-                    <input
-                        type="text"
-                        value={city}
-                        onChange={(e) => setCity(e.target.value)}
-                        placeholder="Search for your city..."
-                        className="w-full bg-gray-800 text-white text-2xl px-6 py-4 rounded-xl border-2 border-gray-700 focus:border-blue-500 focus:outline-none"
-                        autoFocus
-                    />
+                    <OnScreenKeyboard />
                 </div>
 
-                <div className="space-y-3">
-                    {filteredCities.map((cityOption) => (
-                        <div
-                            key={`${cityOption.name}-${cityOption.country}`}
-                            onClick={() => handleSelectCity(cityOption)}
-                            className="bg-gray-800/50 rounded-xl p-6 border-2 border-gray-700 hover:border-blue-500 hover:bg-blue-500/10 transition-all cursor-pointer"
-                        >
-                            <p className="text-white text-2xl font-semibold">
-                                {cityOption.name}
-                            </p>
-                            <p className="text-gray-400 text-lg">{cityOption.country}</p>
+                {/* Matching Cities Display */}
+                {keyboardInput && filteredCities.length > 0 && (
+                    <div className="mt-8">
+                        <p className="text-gray-400 text-lg mb-4">Matching cities (use ↑↓ on DONE to select):</p>
+                        <div className="space-y-2">
+                            {filteredCities.slice(0, 5).map((cityOption, index) => (
+                                <div
+                                    key={`${cityOption.name}-${cityOption.country}`}
+                                    className={`bg-gray-800/50 rounded-xl p-4 border-2 transition-all ${
+                                        index === selectedCityIndex
+                                            ? 'border-blue-500 bg-blue-600/20'
+                                            : 'border-gray-700'
+                                    }`}
+                                >
+                                    <p className="text-white text-xl font-semibold">
+                                        {cityOption.name}
+                                    </p>
+                                    <p className="text-gray-400 text-sm">{cityOption.country}</p>
+                                    {index === selectedCityIndex && (
+                                        <p className="text-blue-400 text-xs mt-1">← Selected</p>
+                                    )}
+                                </div>
+                            ))}
                         </div>
-                    ))}
-                </div>
+                        <p className="text-gray-500 text-sm mt-4">
+                            Navigate to DONE, then use ↑↓ to select city. Press OK on DONE to confirm.
+                        </p>
+                    </div>
+                )}
 
-                <div className="mt-8">
-                    <p className="text-gray-500 text-sm">
-                        Type to search or select from the list above
-                    </p>
-                </div>
+                {keyboardInput && filteredCities.length === 0 && (
+                    <div className="mt-8 text-gray-500 text-lg">
+                        No cities found. Try a different search.
+                    </div>
+                )}
             </div>
         </div>
     );

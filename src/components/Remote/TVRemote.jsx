@@ -92,6 +92,27 @@ function TVRemote() {
                     />
                 </div>
 
+                {/* Channel Controls */}
+                <div className="mb-6">
+                    <p className="text-gray-400 text-xs text-center mb-3">CHANNEL</p>
+                    <div className="flex gap-3">
+                        <RemoteButton
+                            label="CH−"
+                            onClick={() => handleButtonPress('CHANNEL_DOWN')}
+                            isActive={activeButton === 'CHANNEL_DOWN'}
+                            variant="secondary"
+                            className="flex-1"
+                        />
+                        <RemoteButton
+                            label="CH+"
+                            onClick={() => handleButtonPress('CHANNEL_UP')}
+                            isActive={activeButton === 'CHANNEL_UP'}
+                            variant="secondary"
+                            className="flex-1"
+                        />
+                    </div>
+                </div>
+
                 {/* Brightness Controls */}
                 <div className="border-t border-gray-700 pt-6">
                     <p className="text-gray-400 text-xs text-center mb-3">BRIGHTNESS</p>

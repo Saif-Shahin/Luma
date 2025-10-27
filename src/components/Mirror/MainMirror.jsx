@@ -7,54 +7,83 @@ import SettingsIcon from './SettingsIcon';
 
 function MainMirror() {
     const { state } = useApp();
-    const { activeWidgets } = state;
+    const { activeWidgets, widgetPositions } = state;
+
+    // Get widget positions with defaults
+    const timePos = widgetPositions.time || { x: 5, y: 5 };
+    const weatherPos = widgetPositions.weather || { x: 95, y: 5 };
+    const calendarPos = widgetPositions.calendar || { x: 5, y: 95 };
 
     return (
-        <div className="w-full h-full bg-black relative p-12">
-            {/* Top Row - Time (left) and Weather (right) */}
-            <div className="absolute top-12 left-12 right-12 flex justify-between items-start">
-                {/* Time Widget - Top Left */}
-                {activeWidgets.time && (
-                    <div>
+        <div className="w-full h-full bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 relative">
+            {/* Time Widget - Positioned by percentage */}
+            {activeWidgets.time && (
+                <div
+                    className="absolute pointer-events-none transition-all duration-300"
+                    style={{
+                        left: `${timePos.x}%`,
+                        top: `${timePos.y}%`,
+                        zIndex: 10,
+                    }}
+                >
+                    <div className="bg-black/30 backdrop-blur-sm rounded-2xl p-4">
                         <TimeWidget />
                     </div>
-                )}
+                </div>
+            )}
 
-                {/* Weather Widget - Top Right */}
-                {activeWidgets.weather && (
-                    <div>
+            {/* Weather Widget - Positioned by percentage */}
+            {activeWidgets.weather && (
+                <div
+                    className="absolute pointer-events-none transition-all duration-300"
+                    style={{
+                        left: `${weatherPos.x}%`,
+                        top: `${weatherPos.y}%`,
+                        transform: 'translateX(-100%)',
+                        zIndex: 10,
+                    }}
+                >
+                    <div className="bg-black/30 backdrop-blur-sm rounded-2xl p-4">
                         <WeatherWidget />
                     </div>
-                )}
-            </div>
+                </div>
+            )}
 
-            {/* Bottom Row - Calendar (left) */}
-            <div className="absolute bottom-12 left-12 right-12 flex justify-between items-end">
-                {/* Calendar Widget - Bottom Left */}
-                {activeWidgets.calendar && (
-                    <div className="max-w-md">
+            {/* Calendar Widget - Positioned by percentage */}
+            {activeWidgets.calendar && (
+                <div
+                    className="absolute pointer-events-none transition-all duration-300"
+                    style={{
+                        left: `${calendarPos.x}%`,
+                        top: `${calendarPos.y}%`,
+                        transform: 'translateY(-100%)',
+                        zIndex: 10,
+                    }}
+                >
+                    <div className="max-w-md bg-black/30 backdrop-blur-sm rounded-2xl p-4">
                         <CalendarWidget />
                     </div>
-                )}
+                </div>
+            )}
 
-                {/* Bottom Right - Last Updated */}
-                <div className="text-gray-600 text-sm">
+            {/* Settings Icon - Bottom Center */}
+            <div
+                className="absolute bottom-12 left-1/2 transform -translate-x-1/2 pointer-events-none"
+                style={{ zIndex: 10 }}
+            >
+                <SettingsIcon />
+            </div>
+
+            {/* Last Updated - Bottom Right */}
+            <div
+                className="absolute bottom-12 right-12 pointer-events-none"
+                style={{ zIndex: 10 }}
+            >
+                <div className="text-gray-600 text-sm bg-black/30 backdrop-blur-sm rounded-lg px-3 py-1">
                     Updated {new Date().toLocaleTimeString('en-US', {
                     hour: 'numeric',
                     minute: '2-digit',
                 })}
-                </div>
-            </div>
-
-            {/* Settings Icon - Bottom Left Corner */}
-            <div className="absolute bottom-12 left-12">
-                <SettingsIcon />
-            </div>
-
-            {/* Center Area - Clear for reflection */}
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div className="text-gray-800 text-sm opacity-30">
-                    {/* This area is intentionally clear for mirror reflection */}
                 </div>
             </div>
         </div>

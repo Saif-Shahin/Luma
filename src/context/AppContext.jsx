@@ -154,10 +154,10 @@ export function AppProvider({ children }) {
         }
 
         if (currentSetupStep === 'remote-calibration') {
-            const expectedButtons = ['UP', 'RIGHT', 'DOWN', 'LEFT', 'OK', 'CHANNEL_UP', 'CHANNEL_DOWN'];
+            const expectedButtons = ['UP', 'RIGHT', 'DOWN', 'LEFT', 'OK', 'CHANNEL_UP', 'CHANNEL_DOWN', 'BRIGHTNESS_UP', 'BRIGHTNESS_DOWN'];
             if (button === expectedButtons[remoteCalibrationStep]) {
                 const nextStep = remoteCalibrationStep + 1;
-                if (nextStep >= 7) {
+                if (nextStep >= 9) {
                     // Calibration complete
                     updateState({
                         currentSetupStep: 'setup-prompt',

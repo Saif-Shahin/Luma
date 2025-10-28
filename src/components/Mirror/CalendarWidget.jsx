@@ -34,31 +34,11 @@ function CalendarWidget() {
                             }`}
                         >
                             <div className="mt-1">
-                                {event.type === 'event' ? (
-                                    <div
-                                        className={`w-2 h-2 rounded-full ${
-                                            isCompleted ? 'bg-gray-500' : 'bg-blue-500'
-                                        }`}
-                                    ></div>
-                                ) : (
-                                    <div
-                                        className={`w-2 h-2 border-2 rounded-sm ${
-                                            isCompleted
-                                                ? 'bg-green-500 border-green-500'
-                                                : 'border-gray-400'
-                                        }`}
-                                    >
-                                        {isCompleted && (
-                                            <svg
-                                                className="w-1.5 h-1.5 text-white"
-                                                fill="currentColor"
-                                                viewBox="0 0 12 12"
-                                            >
-                                                <path d="M10 3L4.5 8.5L2 6" stroke="white" strokeWidth="2" fill="none" />
-                                            </svg>
-                                        )}
-                                    </div>
-                                )}
+                                <div
+                                    className={`w-2 h-2 rounded-full ${
+                                        isCompleted ? 'bg-gray-500' : 'bg-blue-500'
+                                    }`}
+                                ></div>
                             </div>
                             <div className="flex-1">
                                 <div

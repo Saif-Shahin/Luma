@@ -13,6 +13,8 @@ function RemoteCalibration() {
         { button: 'OK', symbol: 'OK', label: 'OK/Select' },
         { button: 'CHANNEL_UP', symbol: 'CH+', label: 'Channel Up' },
         { button: 'CHANNEL_DOWN', symbol: 'CH−', label: 'Channel Down' },
+        { button: 'BRIGHTNESS_UP', symbol: '+', label: 'Brightness Up' },
+        { button: 'BRIGHTNESS_DOWN', symbol: '−', label: 'Brightness Down' },
     ];
 
     const currentStep = steps[remoteCalibrationStep];

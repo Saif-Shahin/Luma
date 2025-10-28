@@ -216,6 +216,24 @@ export function AppProvider({ children }) {
             }
         } else if (currentSetupStep === 'location') {
             handleKeyboardNavigation(button);
+        } else if (currentSetupStep === 'time-format') {
+            // Time format selection
+            if (button === 'LEFT' || button === 'RIGHT') {
+                // Toggle between 12-hour and 24-hour
+                updateState({ timeFormat: state.timeFormat === '12' ? '24' : '12' });
+            } else if (button === 'OK') {
+                // Confirm and advance to next step
+                nextSetupStep();
+            }
+        } else if (currentSetupStep === 'temp-format') {
+            // Temperature unit selection
+            if (button === 'LEFT' || button === 'RIGHT') {
+                // Toggle between Celsius and Fahrenheit
+                updateState({ tempUnit: state.tempUnit === 'C' ? 'F' : 'C' });
+            } else if (button === 'OK') {
+                // Confirm and advance to next step
+                nextSetupStep();
+            }
         }
     };
 

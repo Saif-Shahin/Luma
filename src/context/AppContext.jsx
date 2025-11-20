@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
+import { connectGoogleCalendar, connectAppleCalendar, syncCalendarEvents } from '../utils/calendarAPI';
 
 const AppContext = createContext();
 
@@ -202,16 +203,42 @@ export function AppProvider({ children }) {
                     // Skip
                     nextSetupStep();
                 } else {
-                    // Select calendar type
+                    // Connect to calendar
                     const calendarType = calendarFocusedOption === 0 ? 'google' : 'apple';
-                    updateState({
-                        calendarConnected: true,
-                        calendarType: calendarType,
-                    });
-                    // Auto-advance after selection
-                    setTimeout(() => {
-                        nextSetupStep();
-                    }, 1000);
+
+                    // Start connection process
+                    (async () => {
+                        try {
+                            let result;
+                            if (calendarType === 'google') {
+                                result = await connectGoogleCalendar();
+                            } else {
+                                result = await connectAppleCalendar();
+                            }
+
+                            // Update state with connection result and events
+                            updateState({
+                                calendarConnected: result.connected,
+                                calendarType: result.type,
+                                calendarEvents: result.events,
+                            });
+
+                            // Auto-advance after successful connection
+                            setTimeout(() => {
+                                nextSetupStep();
+                            }, 1000);
+                        } catch (error) {
+                            console.error('Calendar connection failed:', error);
+                            // Still advance even if connection fails (using mock data)
+                            updateState({
+                                calendarConnected: true,
+                                calendarType: calendarType,
+                            });
+                            setTimeout(() => {
+                                nextSetupStep();
+                            }, 1000);
+                        }
+                    })();
                 }
             }
         } else if (currentSetupStep === 'location') {

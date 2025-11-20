@@ -1,9 +1,31 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
+import { syncCalendarEvents } from '../../utils/calendarAPI';
 
 function CalendarWidget() {
-    const { state } = useApp();
-    const { calendarEvents, focusedCalendarIndex } = state;
+    const { state, updateState } = useApp();
+    const { calendarEvents, focusedCalendarIndex, calendarConnected, calendarType } = state;
+
+    // Sync calendar events periodically
+    useEffect(() => {
+        const syncEvents = async () => {
+            if (calendarConnected && calendarType) {
+                try {
+                    const events = await syncCalendarEvents(calendarType);
+                    updateState({ calendarEvents: events });
+                } catch (error) {
+                    console.error('Failed to sync calendar events:', error);
+                }
+            }
+        };
+
+        // Initial sync
+        syncEvents();
+
+        // Refresh calendar every 15 minutes
+        const interval = setInterval(syncEvents, 15 * 60 * 1000);
+        return () => clearInterval(interval);
+    }, [calendarConnected, calendarType, updateState]);
 
     const events = calendarEvents || [];
 

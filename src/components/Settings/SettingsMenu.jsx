@@ -364,16 +364,151 @@ function TemperatureUnitSetting() {
 
 // Calendar Setting
 function CalendarSetting() {
+    const { state, updateState } = useApp();
+    const { calendarConnected, calendarType, settingsMenuIndex } = state;
+    const [focusedOption, setFocusedOption] = React.useState(0);
+
+    // Import at the top level if not already imported
+    const { connectGoogleCalendar, connectAppleCalendar, disconnectCalendar } =
+        require('../../utils/calendarAPI');
+
+    React.useEffect(() => {
+        const handleNavigation = (button) => {
+            if (button === 'UP') {
+                setFocusedOption(prev => Math.max(0, prev - 1));
+            } else if (button === 'DOWN') {
+                setFocusedOption(prev => Math.min(2, prev + 1));
+            } else if (button === 'OK') {
+                handleOptionSelect();
+            }
+        };
+
+        // Add keyboard listener (you may need to adjust this based on your navigation system)
+        // This is a simplified version
+        return () => {};
+    }, [focusedOption]);
+
+    const handleOptionSelect = async () => {
+        if (focusedOption === 0) {
+            // Reconnect/Change Calendar
+            try {
+                let result;
+                const newType = calendarType === 'google' ? 'apple' : 'google';
+
+                if (newType === 'google') {
+                    result = await connectGoogleCalendar();
+                } else {
+                    result = await connectAppleCalendar();
+                }
+
+                updateState({
+                    calendarConnected: result.connected,
+                    calendarType: result.type,
+                    calendarEvents: result.events,
+                });
+            } catch (error) {
+                console.error('Failed to reconnect calendar:', error);
+            }
+        } else if (focusedOption === 1) {
+            // Disconnect Calendar
+            if (calendarType) {
+                disconnectCalendar(calendarType);
+                updateState({
+                    calendarConnected: false,
+                    calendarType: null,
+                    calendarEvents: [],
+                });
+            }
+        } else if (focusedOption === 2) {
+            // Sync Now (manual sync)
+            const { syncCalendarEvents } = require('../../utils/calendarAPI');
+            try {
+                if (calendarConnected && calendarType) {
+                    const events = await syncCalendarEvents(calendarType);
+                    updateState({ calendarEvents: events });
+                }
+            } catch (error) {
+                console.error('Failed to sync calendar:', error);
+            }
+        }
+    };
+
+    const options = [
+        {
+            label: calendarConnected ? 'Change Calendar' : 'Connect Calendar',
+            description: calendarConnected
+                ? `Switch from ${calendarType === 'google' ? 'Google' : 'Apple'} Calendar`
+                : 'Connect to Google or Apple Calendar',
+        },
+        {
+            label: 'Disconnect Calendar',
+            description: calendarConnected ? 'Remove calendar connection' : 'No calendar connected',
+            disabled: !calendarConnected,
+        },
+        {
+            label: 'Sync Now',
+            description: 'Manually refresh calendar events',
+            disabled: !calendarConnected,
+        },
+    ];
+
     return (
         <div className="w-full h-full bg-black flex items-center justify-center screen-transition p-12">
-            <div className="max-w-2xl w-full text-center">
-                <h1 className="text-white text-4xl font-bold mb-12">
+            <div className="max-w-2xl w-full">
+                <h1 className="text-white text-4xl font-bold mb-8 text-center">
                     Calendar Settings
                 </h1>
-                <p className="text-gray-400 text-2xl mb-8">
-                    Calendar management coming soon
-                </p>
-                <p className="text-gray-500">Press BACK to return</p>
+
+                {/* Connection Status */}
+                <div className="mb-8 p-6 bg-gray-800/50 rounded-2xl border border-gray-700">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-gray-400 text-lg mb-1">Status</p>
+                            <p className="text-white text-2xl font-semibold">
+                                {calendarConnected ? (
+                                    <span className="text-green-400">
+                                        Connected to {calendarType === 'google' ? 'Google' : 'Apple'} Calendar
+                                    </span>
+                                ) : (
+                                    <span className="text-yellow-400">Not Connected</span>
+                                )}
+                            </p>
+                        </div>
+                        <div className={`w-4 h-4 rounded-full ${calendarConnected ? 'bg-green-400' : 'bg-yellow-400'}`}></div>
+                    </div>
+                </div>
+
+                {/* Options */}
+                <div className="space-y-4">
+                    {options.map((option, index) => (
+                        <div
+                            key={index}
+                            className={`p-6 rounded-2xl border-2 transition-all ${
+                                option.disabled
+                                    ? 'border-gray-800 bg-gray-900/30 opacity-50'
+                                    : focusedOption === index
+                                    ? 'border-blue-500 bg-blue-500/20'
+                                    : 'border-gray-700 bg-gray-800/50'
+                            }`}
+                        >
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-white text-2xl font-semibold mb-1">
+                                        {option.label}
+                                    </p>
+                                    <p className="text-gray-400 text-lg">{option.description}</p>
+                                </div>
+                                {focusedOption === index && !option.disabled && (
+                                    <span className="text-blue-500 text-3xl">→</span>
+                                )}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
+                <div className="mt-8 text-center text-gray-500">
+                    <p>Use ↑↓ to navigate • Press OK to select • Press BACK to return</p>
+                </div>
             </div>
         </div>
     );

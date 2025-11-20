@@ -1,6 +1,5 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
-import { connectGoogleCalendar, disconnectCalendar, syncCalendarEvents } from '../../utils/calendarAPI';
 import GoogleDeviceAuth from '../Setup/GoogleDeviceAuth';
 
 function SettingsMenu() {
@@ -366,9 +365,8 @@ function TemperatureUnitSetting() {
 
 // Calendar Setting
 function CalendarSetting() {
-    const { state, updateState } = useApp();
-    const { calendarConnected, calendarType, calendarAuthenticating, deviceCodeData } = state;
-    const [focusedOption, setFocusedOption] = React.useState(0);
+    const { state } = useApp();
+    const { calendarConnected, calendarType, calendarAuthenticating, deviceCodeData, calendarSettingsFocusedOption } = state;
 
     // If authenticating, show the device code auth screen
     if (calendarAuthenticating) {
@@ -384,65 +382,6 @@ function CalendarSetting() {
             />
         );
     }
-
-    React.useEffect(() => {
-        const handleNavigation = (button) => {
-            if (button === 'UP') {
-                setFocusedOption(prev => Math.max(0, prev - 1));
-            } else if (button === 'DOWN') {
-                setFocusedOption(prev => Math.min(1, prev + 1));
-            } else if (button === 'OK') {
-                handleOptionSelect();
-            }
-        };
-
-        // Add keyboard listener (you may need to adjust this based on your navigation system)
-        // This is a simplified version
-        return () => {};
-    }, [focusedOption]);
-
-    const handleOptionSelect = async () => {
-        if (focusedOption === 0) {
-            // Reconnect/Connect Google Calendar using Device Code Flow
-            updateState({ calendarAuthenticating: true });
-
-            try {
-                const result = await connectGoogleCalendar((codeData) => {
-                    // Callback when device code is ready
-                    updateState({
-                        deviceCodeData: codeData,
-                    });
-                });
-
-                updateState({
-                    calendarConnected: result.connected,
-                    calendarType: result.type,
-                    calendarEvents: result.events,
-                    calendarAuthenticating: false,
-                    deviceCodeData: null,
-                });
-            } catch (error) {
-                console.error('Failed to connect calendar:', error);
-                updateState({
-                    calendarAuthenticating: false,
-                    deviceCodeData: null,
-                });
-            }
-        } else if (focusedOption === 1) {
-            // Disconnect Calendar
-            if (!calendarConnected) {
-                return; // Do nothing if not connected
-            }
-
-            // Disconnect
-            disconnectCalendar();
-            updateState({
-                calendarConnected: false,
-                calendarType: null,
-                calendarEvents: [],
-            });
-        }
-    };
 
     // Simplified options - only show what's relevant
     const getOptions = () => {
@@ -511,7 +450,7 @@ function CalendarSetting() {
                             className={`p-6 rounded-2xl border-2 transition-all ${
                                 option.disabled
                                     ? 'border-gray-800 bg-gray-900/30 opacity-50'
-                                    : focusedOption === index
+                                    : calendarSettingsFocusedOption === index
                                         ? 'border-blue-500 bg-blue-500/20'
                                         : 'border-gray-700 bg-gray-800/50'
                             }`}
@@ -523,7 +462,7 @@ function CalendarSetting() {
                                     </p>
                                     <p className="text-gray-400 text-lg">{option.description}</p>
                                 </div>
-                                {focusedOption === index && !option.disabled && (
+                                {calendarSettingsFocusedOption === index && !option.disabled && (
                                     <span className="text-blue-500 text-3xl">→</span>
                                 )}
                             </div>

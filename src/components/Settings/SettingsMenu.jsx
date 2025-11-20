@@ -1,13 +1,14 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
 import GoogleDeviceAuth from '../Setup/GoogleDeviceAuth';
+import WifiSettings from './WifiSettings';
 
 function SettingsMenu() {
     const { state, updateState } = useApp();
     const { settingsMenuIndex, inSettingsSubmenu } = state;
 
     const menuItems = [
-        { id: 'wifi', label: 'WiFi', icon: '📶', disabled: true },
+        { id: 'wifi', label: 'WiFi', icon: '📶', disabled: false },
         { id: 'calendar', label: 'Calendar', icon: '📅' },
         { id: 'time-format', label: 'Time Format', icon: '🕐' },
         { id: 'temperature-unit', label: 'Temperature Unit', icon: '🌡️' },
@@ -69,6 +70,8 @@ function SettingsMenu() {
         }
 
         switch (item.id) {
+            case 'wifi':
+                return <WifiSettings />;
             case 'time-format':
                 return <TimeFormatSetting />;
             case 'temperature-unit':

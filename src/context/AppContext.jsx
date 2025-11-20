@@ -75,6 +75,20 @@ export function AppProvider({ children }) {
 
         // Calendar setup
         calendarFocusedOption: 0, // 0 = Google, 1 = Apple, 2 = Skip
+
+        // WiFi
+        wifiConnected: false,
+        wifiSSID: null,
+        wifiIPAddress: null,
+        wifiNetworks: [],
+        wifiSelectedNetworkIndex: 0, // Currently selected network in list
+        wifiPassword: '', // Password being entered
+        wifiConnecting: false, // Connection in progress
+        wifiScreen: 'network-list', // 'network-list', 'password-entry', 'connecting', 'success', 'error'
+        wifiErrorMessage: '',
+        wifiPasswordCursorRow: 0, // Keyboard cursor position for password entry
+        wifiPasswordCursorCol: 0,
+        wifiSettingsFocusedOption: 0, // 0 = connect/change, 1 = disconnect
     });
 
     // Auto-hide timer ref
@@ -263,6 +277,8 @@ export function AppProvider({ children }) {
                     })();
                 }
             }
+        } else if (currentSetupStep === 'wifi') {
+            handleWifiSetupNavigation(button);
         } else if (currentSetupStep === 'location') {
             handleKeyboardNavigation(button);
         } else if (currentSetupStep === 'time-format') {
@@ -282,6 +298,61 @@ export function AppProvider({ children }) {
             } else if (button === 'OK') {
                 // Confirm and advance to next step
                 nextSetupStep();
+            }
+        }
+    };
+
+    const handleWifiSetupNavigation = (button) => {
+        const { wifiScreen, wifiSelectedNetworkIndex, wifiNetworks } = state;
+
+        if (wifiScreen === 'network-list') {
+            if (button === 'UP') {
+                updateState({
+                    wifiSelectedNetworkIndex: Math.max(0, wifiSelectedNetworkIndex - 1),
+                });
+            } else if (button === 'DOWN') {
+                // Allow selecting beyond networks length to select "Skip"
+                updateState({
+                    wifiSelectedNetworkIndex: Math.min(wifiNetworks.length, wifiSelectedNetworkIndex + 1),
+                });
+            } else if (button === 'OK') {
+                // Check if skip is selected
+                if (wifiSelectedNetworkIndex === wifiNetworks.length) {
+                    // Skip WiFi setup
+                    nextSetupStep();
+                } else {
+                    // Select network and proceed to password entry or connect
+                    const selectedNetwork = wifiNetworks[wifiSelectedNetworkIndex];
+                    if (selectedNetwork) {
+                        if (selectedNetwork.security === 'Open') {
+                            // Connect directly to open network
+                            handleWifiConnect(selectedNetwork.ssid, '', selectedNetwork.security);
+                        } else {
+                            // Go to password entry
+                            updateState({
+                                wifiScreen: 'password-entry',
+                                wifiPassword: '',
+                                wifiPasswordCursorRow: 0,
+                                wifiPasswordCursorCol: 0,
+                            });
+                        }
+                    }
+                }
+            }
+        } else if (wifiScreen === 'password-entry') {
+            handleWifiPasswordNavigation(button);
+        } else if (wifiScreen === 'success') {
+            // Success screen auto-advances, but allow OK/BACK to skip ahead
+            if (button === 'OK') {
+                nextSetupStep();
+            }
+        } else if (wifiScreen === 'error') {
+            // Error screen - go back to network list
+            if (button === 'OK' || button === 'BACK') {
+                updateState({
+                    wifiScreen: 'network-list',
+                    wifiPassword: '',
+                });
             }
         }
     };
@@ -567,6 +638,10 @@ export function AppProvider({ children }) {
                 handleCalendarSettingsSelect(calendarSettingsFocusedOption);
             }
         }
+        // WiFi settings: navigate and select options
+        else if (currentMenu === 'wifi') {
+            handleWifiNavigation(button);
+        }
         // Re-arrange screen: handle widget selection and pixel-based movement
         else if (currentMenu === 'rearrange') {
             const { rearrangeWidgetIndex, widgetPositions } = state;
@@ -643,6 +718,167 @@ export function AppProvider({ children }) {
         }
     };
 
+    const handleWifiNavigation = (button) => {
+        const { wifiScreen, wifiSelectedNetworkIndex, wifiNetworks, wifiPassword, wifiPasswordCursorRow, wifiPasswordCursorCol, wifiSettingsFocusedOption, wifiConnected } = state;
+
+        // WiFi settings main screen (when not connected - show network list)
+        if (wifiScreen === 'network-list') {
+            if (button === 'UP') {
+                updateState({
+                    wifiSelectedNetworkIndex: Math.max(0, wifiSelectedNetworkIndex - 1),
+                });
+            } else if (button === 'DOWN') {
+                updateState({
+                    wifiSelectedNetworkIndex: Math.min(wifiNetworks.length - 1, wifiSelectedNetworkIndex + 1),
+                });
+            } else if (button === 'OK') {
+                // Select network and proceed to password entry (or connect directly if open)
+                const selectedNetwork = wifiNetworks[wifiSelectedNetworkIndex];
+                if (selectedNetwork) {
+                    if (selectedNetwork.security === 'Open') {
+                        // Connect directly to open network
+                        handleWifiConnect(selectedNetwork.ssid, '', selectedNetwork.security);
+                    } else {
+                        // Go to password entry
+                        updateState({
+                            wifiScreen: 'password-entry',
+                            wifiPassword: '',
+                            wifiPasswordCursorRow: 0,
+                            wifiPasswordCursorCol: 0,
+                        });
+                    }
+                }
+            }
+        }
+        // Password entry screen
+        else if (wifiScreen === 'password-entry') {
+            handleWifiPasswordNavigation(button);
+        }
+        // Success/Error screens - OK or BACK to return to network list
+        else if (wifiScreen === 'success' || wifiScreen === 'error') {
+            if (button === 'OK' || button === 'BACK') {
+                if (wifiScreen === 'success') {
+                    // Successfully connected, exit submenu
+                    updateState({
+                        inSettingsSubmenu: false,
+                        wifiScreen: 'network-list',
+                    });
+                } else {
+                    // Error, go back to network list
+                    updateState({
+                        wifiScreen: 'network-list',
+                        wifiPassword: '',
+                    });
+                }
+            }
+        }
+    };
+
+    const handleWifiPasswordNavigation = (button) => {
+        const { wifiPasswordCursorRow, wifiPasswordCursorCol, wifiPassword, wifiSelectedNetworkIndex, wifiNetworks } = state;
+
+        // Keyboard layout (same as location setup)
+        const keyboard = [
+            ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
+            ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', '⌫'],
+            ['Z', 'X', 'C', 'V', 'B', 'N', 'M', ',', '.', '?'],
+            ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
+            ['SPACE', 'DONE'],
+        ];
+
+        if (button === 'UP') {
+            updateState({
+                wifiPasswordCursorRow: Math.max(0, wifiPasswordCursorRow - 1),
+            });
+        } else if (button === 'DOWN') {
+            updateState({
+                wifiPasswordCursorRow: Math.min(4, wifiPasswordCursorRow + 1),
+            });
+        } else if (button === 'LEFT') {
+            if (wifiPasswordCursorRow === 4) {
+                updateState({ wifiPasswordCursorCol: 0 }); // SPACE
+            } else {
+                updateState({
+                    wifiPasswordCursorCol: Math.max(0, wifiPasswordCursorCol - 1),
+                });
+            }
+        } else if (button === 'RIGHT') {
+            if (wifiPasswordCursorRow === 4) {
+                updateState({ wifiPasswordCursorCol: 1 }); // DONE
+            } else {
+                const maxCol = keyboard[wifiPasswordCursorRow].length - 1;
+                updateState({
+                    wifiPasswordCursorCol: Math.min(maxCol, wifiPasswordCursorCol + 1),
+                });
+            }
+        } else if (button === 'OK') {
+            // Handle key press
+            let key;
+            if (wifiPasswordCursorRow === 4) {
+                key = wifiPasswordCursorCol === 0 ? 'SPACE' : 'DONE';
+            } else {
+                key = keyboard[wifiPasswordCursorRow][wifiPasswordCursorCol];
+            }
+
+            if (key === 'DONE') {
+                // Connect to WiFi with entered password
+                const selectedNetwork = wifiNetworks[wifiSelectedNetworkIndex];
+                if (selectedNetwork && wifiPassword.length >= 8) {
+                    handleWifiConnect(selectedNetwork.ssid, wifiPassword, selectedNetwork.security);
+                }
+            } else if (key === '⌫') {
+                // Backspace
+                updateState({
+                    wifiPassword: wifiPassword.slice(0, -1),
+                });
+            } else if (key === 'SPACE') {
+                updateState({
+                    wifiPassword: wifiPassword + ' ',
+                });
+            } else {
+                updateState({
+                    wifiPassword: wifiPassword + key,
+                });
+            }
+        }
+    };
+
+    const handleWifiConnect = async (ssid, password, security) => {
+        const { connectToWifi } = await import('../utils/wifiService.js');
+
+        updateState({
+            wifiConnecting: true,
+            wifiScreen: 'connecting',
+        });
+
+        try {
+            const result = await connectToWifi(ssid, password, security);
+
+            if (result.success) {
+                updateState({
+                    wifiConnected: true,
+                    wifiSSID: result.ssid,
+                    wifiIPAddress: result.ipAddress,
+                    wifiConnecting: false,
+                    wifiScreen: 'success',
+                    wifiPassword: '', // Clear password
+                });
+            } else {
+                updateState({
+                    wifiConnecting: false,
+                    wifiScreen: 'error',
+                    wifiErrorMessage: result.message,
+                });
+            }
+        } catch (error) {
+            updateState({
+                wifiConnecting: false,
+                wifiScreen: 'error',
+                wifiErrorMessage: 'Connection failed. Please try again.',
+            });
+        }
+    };
+
     const handleSettingsMenuSelect = (index) => {
         const menuItems = [
             'wifi',
@@ -663,10 +899,33 @@ export function AppProvider({ children }) {
                 currentFocus: 'settings-icon',
             });
         } else if (selected === 'wifi') {
-            // WiFi is disabled for now, show disabled submenu
+            // Load WiFi networks and enter WiFi settings
+            loadWifiNetworks();
             updateState({ inSettingsSubmenu: true });
         } else {
             updateState({ inSettingsSubmenu: true });
+        }
+    };
+
+    const loadWifiNetworks = async () => {
+        const { scanWifiNetworks } = await import('../utils/wifiService.js');
+
+        try {
+            const networks = await scanWifiNetworks();
+            updateState({
+                wifiNetworks: networks,
+                wifiSelectedNetworkIndex: 0,
+                wifiScreen: 'network-list',
+            });
+        } catch (error) {
+            console.error('Failed to load WiFi networks:', error);
+            // Will use mock data from wifiService
+            const { getMockNetworks } = await import('../utils/wifiService.js');
+            updateState({
+                wifiNetworks: getMockNetworks(),
+                wifiSelectedNetworkIndex: 0,
+                wifiScreen: 'network-list',
+            });
         }
     };
 
@@ -718,6 +977,7 @@ export function AppProvider({ children }) {
             'remote-calibration',
             'setup-prompt',
             'calendar',
+            'wifi',
             'location',
             'time-format',
             'temp-format',
@@ -726,6 +986,11 @@ export function AppProvider({ children }) {
         const currentIndex = steps.indexOf(state.currentSetupStep);
         if (currentIndex < steps.length - 1) {
             updateState({ currentSetupStep: steps[currentIndex + 1] });
+
+            // Load WiFi networks when entering WiFi setup step
+            if (steps[currentIndex + 1] === 'wifi') {
+                loadWifiNetworks();
+            }
         } else {
             updateState({
                 setupComplete: true,
@@ -742,6 +1007,7 @@ export function AppProvider({ children }) {
             'remote-calibration',
             'setup-prompt',
             'calendar',
+            'wifi',
             'location',
             'time-format',
             'temp-format',

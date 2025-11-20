@@ -4,6 +4,7 @@ import Welcome from '../Setup/Welcome';
 import RemoteCalibration from '../Setup/RemoteCalibration';
 import SetupPrompt from '../Setup/SetupPrompt';
 import CalendarSync from '../Setup/CalendarSync';
+import WifiSetup from '../Setup/WifiSetup';
 import LocationSetup from '../Setup/LocationSetup';
 import TimeFormat from '../Setup/TimeFormat';
 import TempFormat from '../Setup/TempFormat';
@@ -40,6 +41,8 @@ function MirrorDisplay() {
                     return <SetupPrompt />;
                 case 'calendar':
                     return <CalendarSync />;
+                case 'wifi':
+                    return <WifiSetup />;
                 case 'location':
                     return <LocationSetup />;
                 case 'time-format':

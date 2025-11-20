@@ -1,10 +1,29 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
+import GoogleDeviceAuth from './GoogleDeviceAuth';
 
 function CalendarSync() {
     const { state } = useApp();
     const focusedOption = state.calendarFocusedOption;
+    const isAuthenticating = state.calendarAuthenticating;
+    const deviceCodeData = state.deviceCodeData;
 
+    // If authenticating, show the device code auth screen
+    if (isAuthenticating) {
+        return (
+            <GoogleDeviceAuth
+                deviceCodeData={deviceCodeData}
+                onSuccess={() => {
+                    console.log('Authentication successful!');
+                }}
+                onError={(error) => {
+                    console.error('Authentication error:', error);
+                }}
+            />
+        );
+    }
+
+    // Otherwise, show the calendar selection screen
     const options = [
         { type: 'google', label: 'Google Calendar', icon: 'G', color: 'blue-600' },
         { type: 'skip', label: 'Skip for now', icon: '→', color: 'gray-700' },

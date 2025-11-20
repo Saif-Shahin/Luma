@@ -1,5 +1,6 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
+import GoogleDeviceAuth from '../Setup/GoogleDeviceAuth';
 
 function SettingsMenu() {
     const { state, updateState } = useApp();
@@ -364,70 +365,23 @@ function TemperatureUnitSetting() {
 
 // Calendar Setting
 function CalendarSetting() {
-    const { state, updateState } = useApp();
-    const { calendarConnected, calendarType } = state;
-    const [focusedOption, setFocusedOption] = React.useState(0);
+    const { state } = useApp();
+    const { calendarConnected, calendarType, calendarAuthenticating, deviceCodeData, calendarSettingsFocusedOption } = state;
 
-    const { connectGoogleCalendar, disconnectCalendar, syncCalendarEvents } =
-        require('../../utils/calendarAPI');
-
-    React.useEffect(() => {
-        const handleNavigation = (button) => {
-            if (button === 'UP') {
-                setFocusedOption(prev => Math.max(0, prev - 1));
-            } else if (button === 'DOWN') {
-                setFocusedOption(prev => Math.min(1, prev + 1));
-            } else if (button === 'OK') {
-                handleOptionSelect();
-            }
-        };
-
-        // Add keyboard listener (you may need to adjust this based on your navigation system)
-        // This is a simplified version
-        return () => {};
-    }, [focusedOption]);
-
-    const handleOptionSelect = async () => {
-        if (focusedOption === 0) {
-            // Reconnect/Connect Google Calendar
-            try {
-                const result = await connectGoogleCalendar();
-                updateState({
-                    calendarConnected: result.connected,
-                    calendarType: result.type,
-                    calendarEvents: result.events,
-                });
-            } catch (error) {
-                console.error('Failed to connect calendar:', error);
-            }
-        } else if (focusedOption === 1) {
-            // Disconnect Calendar or Sync Now
-            if (!calendarConnected) {
-                return; // Do nothing if not connected
-            }
-
-            // Check if this is disconnect or sync based on second option state
-            if (focusedOption === 1 && calendarConnected) {
-                // Disconnect
-                disconnectCalendar();
-                updateState({
-                    calendarConnected: false,
-                    calendarType: null,
-                    calendarEvents: [],
-                });
-            }
-        } else if (focusedOption === 2) {
-            // Sync Now
-            try {
-                if (calendarConnected) {
-                    const events = await syncCalendarEvents();
-                    updateState({ calendarEvents: events });
-                }
-            } catch (error) {
-                console.error('Failed to sync calendar:', error);
-            }
-        }
-    };
+    // If authenticating, show the device code auth screen
+    if (calendarAuthenticating) {
+        return (
+            <GoogleDeviceAuth
+                deviceCodeData={deviceCodeData}
+                onSuccess={() => {
+                    console.log('Authentication successful from settings!');
+                }}
+                onError={(error) => {
+                    console.error('Authentication error from settings:', error);
+                }}
+            />
+        );
+    }
 
     // Simplified options - only show what's relevant
     const getOptions = () => {
@@ -496,7 +450,7 @@ function CalendarSetting() {
                             className={`p-6 rounded-2xl border-2 transition-all ${
                                 option.disabled
                                     ? 'border-gray-800 bg-gray-900/30 opacity-50'
-                                    : focusedOption === index
+                                    : calendarSettingsFocusedOption === index
                                         ? 'border-blue-500 bg-blue-500/20'
                                         : 'border-gray-700 bg-gray-800/50'
                             }`}
@@ -508,7 +462,7 @@ function CalendarSetting() {
                                     </p>
                                     <p className="text-gray-400 text-lg">{option.description}</p>
                                 </div>
-                                {focusedOption === index && !option.disabled && (
+                                {calendarSettingsFocusedOption === index && !option.disabled && (
                                     <span className="text-blue-500 text-3xl">→</span>
                                 )}
                             </div>

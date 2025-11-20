@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { connectGoogleCalendar, syncCalendarEvents } from '../utils/calendarAPI';
+import { clearTokens } from '../utils/oauthService';
 
 const AppContext = createContext();
 
@@ -30,6 +31,8 @@ export function AppProvider({ children }) {
             { id: '3', title: 'Dentist appointment', time: '4:30 PM', type: 'event', completed: false },
             { id: '4', title: 'Call with client', time: '5:15 PM', type: 'event', completed: false },
         ],
+        calendarAuthenticating: false, // Whether device code auth is in progress
+        deviceCodeData: null, // Device code data for display
 
         // Weather
         weatherData: null,
@@ -58,6 +61,7 @@ export function AppProvider({ children }) {
         inSettingsSubmenu: false,
         displayElementsIndex: 0, // currently selected display element (0 = time, 1 = weather, 2 = calendar)
         rearrangeWidgetIndex: 0, // currently selected widget in rearrange screen (0 = time, 1 = weather, 2 = calendar)
+        calendarSettingsFocusedOption: 0, // currently selected option in calendar settings (0 = connect/reconnect, 1 = disconnect)
 
         // Display
         displayOn: true,
@@ -110,6 +114,13 @@ export function AppProvider({ children }) {
         };
     }, []);
 
+    // Clear authentication tokens on fresh app startup
+    // This ensures users go through the QR code flow every time they start the app
+    useEffect(() => {
+        clearTokens();
+        console.log('Cleared authentication tokens on app startup');
+    }, []);
+
     // Toggle calendar item completion
     const toggleCalendarItem = (itemId) => {
         setState(prev => ({
@@ -150,6 +161,14 @@ export function AppProvider({ children }) {
 
         // Handle BACK button to go to previous step
         if (button === 'BACK' && currentSetupStep !== 'welcome') {
+            // If currently authenticating, cancel authentication
+            if (state.calendarAuthenticating) {
+                updateState({
+                    calendarAuthenticating: false,
+                    deviceCodeData: null,
+                });
+                return;
+            }
             previousSetupStep();
             return;
         }
@@ -203,28 +222,39 @@ export function AppProvider({ children }) {
                     // Skip
                     nextSetupStep();
                 } else {
-                    // Connect to Google Calendar
+                    // Connect to Google Calendar using Device Code Flow
+                    updateState({ calendarAuthenticating: true });
+
                     (async () => {
                         try {
-                            const result = await connectGoogleCalendar();
+                            const result = await connectGoogleCalendar((codeData) => {
+                                // Callback when device code is ready
+                                updateState({
+                                    deviceCodeData: codeData,
+                                });
+                            });
 
                             // Update state with connection result and events
                             updateState({
                                 calendarConnected: result.connected,
                                 calendarType: result.type,
                                 calendarEvents: result.events,
+                                calendarAuthenticating: false,
+                                deviceCodeData: null,
                             });
 
                             // Auto-advance after successful connection
                             setTimeout(() => {
                                 nextSetupStep();
-                            }, 1000);
+                            }, 2000);
                         } catch (error) {
                             console.error('Calendar connection failed:', error);
                             // Still advance even if connection fails (using mock data)
                             updateState({
                                 calendarConnected: true,
                                 calendarType: 'google',
+                                calendarAuthenticating: false,
+                                deviceCodeData: null,
                             });
                             setTimeout(() => {
                                 nextSetupStep();
@@ -435,6 +465,15 @@ export function AppProvider({ children }) {
         const { inSettingsSubmenu, settingsMenuIndex } = state;
 
         if (button === 'BACK') {
+            // If currently authenticating, cancel authentication
+            if (state.calendarAuthenticating) {
+                updateState({
+                    calendarAuthenticating: false,
+                    deviceCodeData: null,
+                });
+                return;
+            }
+
             if (inSettingsSubmenu) {
                 updateState({ inSettingsSubmenu: false });
             } else {
@@ -509,6 +548,23 @@ export function AppProvider({ children }) {
                         [currentElement]: !activeWidgets[currentElement],
                     },
                 });
+            }
+        }
+        // Calendar settings: navigate and select options
+        else if (currentMenu === 'calendar') {
+            const { calendarSettingsFocusedOption, calendarConnected } = state;
+            const maxOptions = calendarConnected ? 1 : 0; // 0 = connect, 1 = disconnect (only if connected)
+
+            if (button === 'UP') {
+                updateState({
+                    calendarSettingsFocusedOption: Math.max(0, calendarSettingsFocusedOption - 1),
+                });
+            } else if (button === 'DOWN') {
+                updateState({
+                    calendarSettingsFocusedOption: Math.min(maxOptions, calendarSettingsFocusedOption + 1),
+                });
+            } else if (button === 'OK') {
+                handleCalendarSettingsSelect(calendarSettingsFocusedOption);
             }
         }
         // Re-arrange screen: handle widget selection and pixel-based movement
@@ -611,6 +667,47 @@ export function AppProvider({ children }) {
             updateState({ inSettingsSubmenu: true });
         } else {
             updateState({ inSettingsSubmenu: true });
+        }
+    };
+
+    // Handle calendar settings option selection
+    const handleCalendarSettingsSelect = async (optionIndex) => {
+        const { calendarConnected } = state;
+
+        if (optionIndex === 0) {
+            // Connect/Reconnect Google Calendar using Device Code Flow
+            updateState({ calendarAuthenticating: true });
+
+            try {
+                const result = await connectGoogleCalendar((codeData) => {
+                    // Callback when device code is ready
+                    updateState({
+                        deviceCodeData: codeData,
+                    });
+                });
+
+                updateState({
+                    calendarConnected: result.connected,
+                    calendarType: result.type,
+                    calendarEvents: result.events,
+                    calendarAuthenticating: false,
+                    deviceCodeData: null,
+                });
+            } catch (error) {
+                console.error('Failed to connect calendar:', error);
+                updateState({
+                    calendarAuthenticating: false,
+                    deviceCodeData: null,
+                });
+            }
+        } else if (optionIndex === 1 && calendarConnected) {
+            // Disconnect Calendar
+            clearTokens();
+            updateState({
+                calendarConnected: false,
+                calendarType: null,
+                calendarEvents: [],
+            });
         }
     };
 

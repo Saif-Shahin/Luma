@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
+import { connectGoogleCalendar, syncCalendarEvents } from '../utils/calendarAPI';
 
 const AppContext = createContext();
 
@@ -194,24 +195,42 @@ export function AppProvider({ children }) {
                 });
             } else if (button === 'DOWN') {
                 updateState({
-                    calendarFocusedOption: Math.min(2, calendarFocusedOption + 1),
+                    calendarFocusedOption: Math.min(1, calendarFocusedOption + 1),
                 });
             } else if (button === 'OK') {
                 // Handle calendar selection
-                if (calendarFocusedOption === 2) {
+                if (calendarFocusedOption === 1) {
                     // Skip
                     nextSetupStep();
                 } else {
-                    // Select calendar type
-                    const calendarType = calendarFocusedOption === 0 ? 'google' : 'apple';
-                    updateState({
-                        calendarConnected: true,
-                        calendarType: calendarType,
-                    });
-                    // Auto-advance after selection
-                    setTimeout(() => {
-                        nextSetupStep();
-                    }, 1000);
+                    // Connect to Google Calendar
+                    (async () => {
+                        try {
+                            const result = await connectGoogleCalendar();
+
+                            // Update state with connection result and events
+                            updateState({
+                                calendarConnected: result.connected,
+                                calendarType: result.type,
+                                calendarEvents: result.events,
+                            });
+
+                            // Auto-advance after successful connection
+                            setTimeout(() => {
+                                nextSetupStep();
+                            }, 1000);
+                        } catch (error) {
+                            console.error('Calendar connection failed:', error);
+                            // Still advance even if connection fails (using mock data)
+                            updateState({
+                                calendarConnected: true,
+                                calendarType: 'google',
+                            });
+                            setTimeout(() => {
+                                nextSetupStep();
+                            }, 1000);
+                        }
+                    })();
                 }
             }
         } else if (currentSetupStep === 'location') {

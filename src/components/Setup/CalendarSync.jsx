@@ -7,7 +7,6 @@ function CalendarSync() {
 
     const options = [
         { type: 'google', label: 'Google Calendar', icon: 'G', color: 'blue-600' },
-        { type: 'apple', label: 'Apple Calendar', icon: '🍎', color: 'gray-600' },
         { type: 'skip', label: 'Skip for now', icon: '→', color: 'gray-700' },
     ];
 
@@ -34,10 +33,6 @@ function CalendarSync() {
                                     {option.type === 'google' ? (
                                         <div className="w-16 h-16 bg-white rounded-xl flex items-center justify-center">
                                             <span className="text-3xl font-bold text-blue-600">{option.icon}</span>
-                                        </div>
-                                    ) : option.type === 'apple' ? (
-                                        <div className="w-16 h-16 bg-white rounded-xl flex items-center justify-center">
-                                            <span className="text-4xl">{option.icon}</span>
                                         </div>
                                     ) : (
                                         <div className={`w-16 h-16 bg-${option.color} rounded-xl flex items-center justify-center`}>

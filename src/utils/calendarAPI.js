@@ -1,18 +1,20 @@
 // Calendar API integration with OAuth support
 import {
-    initiateGoogleAuth,
-    openOAuthPopup,
     getTokens,
     isAuthenticated,
     refreshGoogleToken,
     clearTokens,
 } from './oauthService';
+import { authenticateWithDeviceCode } from './deviceCodeAuth';
 
 /**
- * Connect to Google Calendar
- * Initiates OAuth flow and returns connection status
+ * Connect to Google Calendar using Device Code Flow
+ * This flow is TV-remote friendly - no keyboard required!
+ *
+ * @param {Function} onCodeReady - Callback when device code is ready to display
+ * @returns {Promise} Connection result with events
  */
-export async function connectGoogleCalendar() {
+export async function connectGoogleCalendar(onCodeReady) {
     try {
         // Check if already authenticated
         if (isAuthenticated()) {
@@ -24,20 +26,12 @@ export async function connectGoogleCalendar() {
             };
         }
 
-        // Initiate OAuth flow
-        const authUrl = initiateGoogleAuth();
+        // Use Device Code Flow for authentication
+        const result = await authenticateWithDeviceCode(onCodeReady);
 
-        if (!authUrl) {
-            console.warn('Google OAuth not configured, using mock data');
-            return {
-                connected: true,
-                type: 'google',
-                events: getGoogleMockEvents(),
-            };
+        if (!result.success) {
+            throw new Error('Authentication failed');
         }
-
-        // Open OAuth popup
-        await openOAuthPopup(authUrl);
 
         // Fetch events after successful authentication
         const events = await fetchGoogleCalendarEvents();

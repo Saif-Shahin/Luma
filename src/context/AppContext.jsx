@@ -30,6 +30,8 @@ export function AppProvider({ children }) {
             { id: '3', title: 'Dentist appointment', time: '4:30 PM', type: 'event', completed: false },
             { id: '4', title: 'Call with client', time: '5:15 PM', type: 'event', completed: false },
         ],
+        calendarAuthenticating: false, // Whether device code auth is in progress
+        deviceCodeData: null, // Device code data for display
 
         // Weather
         weatherData: null,
@@ -150,6 +152,14 @@ export function AppProvider({ children }) {
 
         // Handle BACK button to go to previous step
         if (button === 'BACK' && currentSetupStep !== 'welcome') {
+            // If currently authenticating, cancel authentication
+            if (state.calendarAuthenticating) {
+                updateState({
+                    calendarAuthenticating: false,
+                    deviceCodeData: null,
+                });
+                return;
+            }
             previousSetupStep();
             return;
         }
@@ -203,28 +213,39 @@ export function AppProvider({ children }) {
                     // Skip
                     nextSetupStep();
                 } else {
-                    // Connect to Google Calendar
+                    // Connect to Google Calendar using Device Code Flow
+                    updateState({ calendarAuthenticating: true });
+
                     (async () => {
                         try {
-                            const result = await connectGoogleCalendar();
+                            const result = await connectGoogleCalendar((codeData) => {
+                                // Callback when device code is ready
+                                updateState({
+                                    deviceCodeData: codeData,
+                                });
+                            });
 
                             // Update state with connection result and events
                             updateState({
                                 calendarConnected: result.connected,
                                 calendarType: result.type,
                                 calendarEvents: result.events,
+                                calendarAuthenticating: false,
+                                deviceCodeData: null,
                             });
 
                             // Auto-advance after successful connection
                             setTimeout(() => {
                                 nextSetupStep();
-                            }, 1000);
+                            }, 2000);
                         } catch (error) {
                             console.error('Calendar connection failed:', error);
                             // Still advance even if connection fails (using mock data)
                             updateState({
                                 calendarConnected: true,
                                 calendarType: 'google',
+                                calendarAuthenticating: false,
+                                deviceCodeData: null,
                             });
                             setTimeout(() => {
                                 nextSetupStep();

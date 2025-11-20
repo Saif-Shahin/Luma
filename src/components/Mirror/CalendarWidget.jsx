@@ -9,9 +9,9 @@ function CalendarWidget() {
     // Sync calendar events periodically
     useEffect(() => {
         const syncEvents = async () => {
-            if (calendarConnected && calendarType) {
+            if (calendarConnected) {
                 try {
-                    const events = await syncCalendarEvents(calendarType);
+                    const events = await syncCalendarEvents();
                     updateState({ calendarEvents: events });
                 } catch (error) {
                     console.error('Failed to sync calendar events:', error);
@@ -25,7 +25,7 @@ function CalendarWidget() {
         // Refresh calendar every 15 minutes
         const interval = setInterval(syncEvents, 15 * 60 * 1000);
         return () => clearInterval(interval);
-    }, [calendarConnected, calendarType, updateState]);
+    }, [calendarConnected, updateState]);
 
     const events = calendarEvents || [];
 

@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import App from './App';
 import GoogleCallback from './components/OAuth/GoogleCallback';
-import AppleCallback from './components/OAuth/AppleCallback';
 
 /**
  * Simple router for handling OAuth callbacks without react-router
@@ -22,10 +21,6 @@ export default function Router() {
     // Route to appropriate component
     if (currentPath === '/auth/google/callback') {
         return <GoogleCallback />;
-    }
-
-    if (currentPath === '/auth/apple/callback') {
-        return <AppleCallback />;
     }
 
     // Default route - main app

@@ -365,11 +365,10 @@ function TemperatureUnitSetting() {
 // Calendar Setting
 function CalendarSetting() {
     const { state, updateState } = useApp();
-    const { calendarConnected, calendarType, settingsMenuIndex } = state;
+    const { calendarConnected, calendarType } = state;
     const [focusedOption, setFocusedOption] = React.useState(0);
 
-    // Import at the top level if not already imported
-    const { connectGoogleCalendar, connectAppleCalendar, disconnectCalendar } =
+    const { connectGoogleCalendar, disconnectCalendar, syncCalendarEvents } =
         require('../../utils/calendarAPI');
 
     React.useEffect(() => {
@@ -377,7 +376,7 @@ function CalendarSetting() {
             if (button === 'UP') {
                 setFocusedOption(prev => Math.max(0, prev - 1));
             } else if (button === 'DOWN') {
-                setFocusedOption(prev => Math.min(2, prev + 1));
+                setFocusedOption(prev => Math.min(1, prev + 1));
             } else if (button === 'OK') {
                 handleOptionSelect();
             }
@@ -390,29 +389,27 @@ function CalendarSetting() {
 
     const handleOptionSelect = async () => {
         if (focusedOption === 0) {
-            // Reconnect/Change Calendar
+            // Reconnect/Connect Google Calendar
             try {
-                let result;
-                const newType = calendarType === 'google' ? 'apple' : 'google';
-
-                if (newType === 'google') {
-                    result = await connectGoogleCalendar();
-                } else {
-                    result = await connectAppleCalendar();
-                }
-
+                const result = await connectGoogleCalendar();
                 updateState({
                     calendarConnected: result.connected,
                     calendarType: result.type,
                     calendarEvents: result.events,
                 });
             } catch (error) {
-                console.error('Failed to reconnect calendar:', error);
+                console.error('Failed to connect calendar:', error);
             }
         } else if (focusedOption === 1) {
-            // Disconnect Calendar
-            if (calendarType) {
-                disconnectCalendar(calendarType);
+            // Disconnect Calendar or Sync Now
+            if (!calendarConnected) {
+                return; // Do nothing if not connected
+            }
+
+            // Check if this is disconnect or sync based on second option state
+            if (focusedOption === 1 && calendarConnected) {
+                // Disconnect
+                disconnectCalendar();
                 updateState({
                     calendarConnected: false,
                     calendarType: null,
@@ -420,11 +417,10 @@ function CalendarSetting() {
                 });
             }
         } else if (focusedOption === 2) {
-            // Sync Now (manual sync)
-            const { syncCalendarEvents } = require('../../utils/calendarAPI');
+            // Sync Now
             try {
-                if (calendarConnected && calendarType) {
-                    const events = await syncCalendarEvents(calendarType);
+                if (calendarConnected) {
+                    const events = await syncCalendarEvents();
                     updateState({ calendarEvents: events });
                 }
             } catch (error) {
@@ -433,24 +429,38 @@ function CalendarSetting() {
         }
     };
 
-    const options = [
-        {
-            label: calendarConnected ? 'Change Calendar' : 'Connect Calendar',
-            description: calendarConnected
-                ? `Switch from ${calendarType === 'google' ? 'Google' : 'Apple'} Calendar`
-                : 'Connect to Google or Apple Calendar',
-        },
-        {
-            label: 'Disconnect Calendar',
-            description: calendarConnected ? 'Remove calendar connection' : 'No calendar connected',
-            disabled: !calendarConnected,
-        },
-        {
-            label: 'Sync Now',
-            description: 'Manually refresh calendar events',
-            disabled: !calendarConnected,
-        },
-    ];
+    // Simplified options - only show what's relevant
+    const getOptions = () => {
+        if (!calendarConnected) {
+            return [
+                {
+                    label: 'Connect Google Calendar',
+                    description: 'Sign in to sync your Google Calendar events',
+                    disabled: false,
+                },
+                {
+                    label: 'Sync Now',
+                    description: 'No calendar connected',
+                    disabled: true,
+                },
+            ];
+        }
+
+        return [
+            {
+                label: 'Reconnect Calendar',
+                description: 'Reconnect to Google Calendar',
+                disabled: false,
+            },
+            {
+                label: 'Disconnect Calendar',
+                description: 'Remove calendar connection',
+                disabled: false,
+            },
+        ];
+    };
+
+    const options = getOptions();
 
     return (
         <div className="w-full h-full bg-black flex items-center justify-center screen-transition p-12">
@@ -467,7 +477,7 @@ function CalendarSetting() {
                             <p className="text-white text-2xl font-semibold">
                                 {calendarConnected ? (
                                     <span className="text-green-400">
-                                        Connected to {calendarType === 'google' ? 'Google' : 'Apple'} Calendar
+                                        Connected to Google Calendar
                                     </span>
                                 ) : (
                                     <span className="text-yellow-400">Not Connected</span>

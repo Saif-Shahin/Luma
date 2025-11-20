@@ -1,12 +1,10 @@
-# Calendar Integration Setup Guide
+# Google Calendar Integration Setup Guide
 
-This guide explains how to set up Google Calendar and Apple Calendar integration for the Luma Smart Mirror.
+This guide explains how to set up Google Calendar integration for the Luma Smart Mirror.
 
 ## Overview
 
-The Luma Smart Mirror now supports real calendar integration with:
-- **Google Calendar** - Full OAuth 2.0 integration with automatic event syncing
-- **Apple Calendar** - OAuth integration (requires backend implementation for full support)
+The Luma Smart Mirror supports real calendar integration with **Google Calendar** using OAuth 2.0 authentication, allowing users to sync their personal calendar events automatically.
 
 ## Features
 
@@ -14,30 +12,36 @@ The Luma Smart Mirror now supports real calendar integration with:
 - ✅ Automatic token refresh
 - ✅ Periodic event syncing (every 15 minutes)
 - ✅ Manual sync option in settings
-- ✅ Connect/disconnect calendars from settings
-- ✅ Switch between different calendar providers
+- ✅ Connect/disconnect calendar from settings
 - ✅ Secure token storage in localStorage
 - ✅ Fallback to mock data when OAuth is not configured
+- ✅ Users authenticate with their own Google accounts
+
+## How It Works
+
+**You (the developer) set up ONCE:**
+- Create ONE Google Cloud project with OAuth credentials
+- Add those credentials to your `.env.local` file
+- Deploy the app
+
+**Each user authenticates themselves:**
+- During setup, they select "Google Calendar"
+- A popup opens asking them to log into THEIR Google account
+- They grant permission to read their calendar
+- Their personal calendar events appear on their mirror
+- Each user's tokens are stored separately in their browser
+
+This is exactly how "Sign in with Google" works - one app configuration, many users with their own calendars.
 
 ## Prerequisites
 
-### For Google Calendar Integration
-
-1. A Google Cloud Platform account
-2. Google Calendar API enabled
-3. OAuth 2.0 credentials (Client ID and Client Secret)
-
-### For Apple Calendar Integration
-
-1. An Apple Developer account
-2. Sign in with Apple configured
-3. Backend server for token exchange (Apple requires server-side OAuth)
+- A Google Cloud Platform account
+- Google Calendar API enabled
+- OAuth 2.0 credentials (Client ID and Client Secret)
 
 ## Setup Instructions
 
-### 1. Google Calendar Setup
-
-#### Step 1: Create a Google Cloud Project
+### Step 1: Create a Google Cloud Project
 
 1. Go to [Google Cloud Console](https://console.cloud.google.com/)
 2. Create a new project or select an existing one
@@ -46,7 +50,7 @@ The Luma Smart Mirror now supports real calendar integration with:
    - Search for "Google Calendar API"
    - Click "Enable"
 
-#### Step 2: Create OAuth 2.0 Credentials
+### Step 2: Create OAuth 2.0 Credentials
 
 1. Navigate to "APIs & Services" > "Credentials"
 2. Click "Create Credentials" > "OAuth client ID"
@@ -60,7 +64,7 @@ The Luma Smart Mirror now supports real calendar integration with:
 6. Click "Create"
 7. Copy your **Client ID** and **Client Secret**
 
-#### Step 3: Configure Environment Variables
+### Step 3: Configure Environment Variables
 
 1. Copy `.env.example` to `.env.local`:
    ```bash
@@ -74,37 +78,20 @@ The Luma Smart Mirror now supports real calendar integration with:
    VITE_GOOGLE_REDIRECT_URI=http://localhost:5173/auth/google/callback
    ```
 
-### 2. Apple Calendar Setup
+3. For production deployment, update the redirect URI:
+   ```env
+   VITE_GOOGLE_REDIRECT_URI=https://yourdomain.com/auth/google/callback
+   ```
 
-Apple Calendar integration requires additional backend setup due to Apple's security requirements.
+### Step 4: Run the Application
 
-#### Step 1: Sign in with Apple Configuration
+```bash
+# Install dependencies (first time only)
+npm install
 
-1. Go to [Apple Developer](https://developer.apple.com/)
-2. Navigate to "Certificates, Identifiers & Profiles"
-3. Create a new Service ID for "Sign in with Apple"
-4. Configure your domain and redirect URLs
-5. Generate a private key for server-to-server authentication
-
-#### Step 2: Backend Implementation
-
-Apple OAuth requires server-side token exchange. You'll need to:
-
-1. Set up a backend server (Node.js, Python, etc.)
-2. Implement the following endpoints:
-   - `POST /api/auth/apple/token` - Exchange authorization code for tokens
-   - `POST /api/auth/apple/refresh` - Refresh access token
-3. Use Apple's private key for JWT signing
-
-#### Step 3: Configure Environment Variables
-
-Add to `.env.local`:
-```env
-VITE_APPLE_CLIENT_ID=your_apple_service_id_here
-VITE_APPLE_REDIRECT_URI=http://localhost:5173/auth/apple/callback
+# Start development server
+npm run dev
 ```
-
-**Note:** Full Apple Calendar integration requires CalDAV protocol implementation, which is beyond the scope of this frontend-only setup. For now, the app will use mock data for Apple Calendar.
 
 ## Usage
 
@@ -112,9 +99,9 @@ VITE_APPLE_REDIRECT_URI=http://localhost:5173/auth/apple/callback
 
 1. Start the app and go through the setup wizard
 2. When prompted to "Connect Your Calendar":
-   - Select "Google Calendar" or "Apple Calendar"
+   - Select "Google Calendar"
    - A popup window will open for authentication
-   - Sign in with your Google/Apple account
+   - Sign in with your Google account
    - Grant calendar read permissions
    - The popup will close automatically upon success
 3. Your calendar events will appear on the mirror display
@@ -125,16 +112,15 @@ Access calendar settings by:
 1. Press the settings icon on the main mirror display
 2. Navigate to "Calendar" in the settings menu
 3. Available options:
-   - **Change Calendar** - Switch between Google and Apple Calendar
+   - **Reconnect Calendar** - Re-authenticate with Google Calendar
    - **Disconnect Calendar** - Remove calendar connection
-   - **Sync Now** - Manually refresh calendar events
 
 ## Calendar Event Display
 
 - Events are displayed on the main mirror screen
 - Shows up to 5 upcoming events
 - Displays event title, time, and type (event/todo)
-- Color-coded based on calendar provider
+- Color-coded based on Google Calendar colors
 - Automatically syncs every 15 minutes
 - Navigate with remote control arrows
 - Mark items as complete/incomplete with OK button
@@ -147,6 +133,7 @@ Access calendar settings by:
 - Tokens are scoped to read-only calendar access
 - Refresh tokens allow automatic re-authentication
 - Tokens are cleared when disconnecting calendar
+- Each user's tokens are isolated to their browser
 
 ### Best Practices
 
@@ -176,7 +163,7 @@ If you see this warning in the console:
 1. Check browser console for error messages
 2. Verify your OAuth tokens haven't expired
 3. Try disconnecting and reconnecting the calendar
-4. Use "Sync Now" in settings to manually refresh
+4. Check that the Google Calendar API is enabled in your Google Cloud project
 
 ### CORS Errors
 
@@ -226,8 +213,7 @@ src/
 │   └── calendarAPI.js           # Calendar API integration & data fetching
 ├── components/
 │   ├── OAuth/
-│   │   ├── GoogleCallback.jsx   # Google OAuth callback handler
-│   │   └── AppleCallback.jsx    # Apple OAuth callback handler
+│   │   └── GoogleCallback.jsx   # Google OAuth callback handler
 │   ├── Setup/
 │   │   └── CalendarSync.jsx     # Setup wizard calendar selection
 │   ├── Settings/
@@ -249,9 +235,35 @@ For issues or questions:
 
 ## Next Steps
 
-- Implement backend for Apple Calendar CalDAV integration
+Potential enhancements:
 - Add support for multiple calendars (work/personal)
 - Implement event creation and editing
 - Add calendar color customization
 - Support recurring events
 - Add event reminders and notifications
+- Implement event filtering by calendar
+
+## Why Users Don't Need to Hardcode Anything
+
+The OAuth setup YOU do once allows EVERY USER to connect their own Google Calendar:
+
+1. **Your Setup (One Time)**:
+   - Create Google Cloud project
+   - Add OAuth credentials to `.env.local`
+   - Deploy the application
+
+2. **User Experience (Each User)**:
+   - Click "Connect Google Calendar" during setup
+   - Pop-up opens to Google's login page
+   - User logs in with THEIR Google account
+   - User grants permission
+   - Their personal events appear
+
+3. **Behind the Scenes**:
+   - Your app uses YOUR OAuth client ID (from `.env.local`)
+   - Google authenticates THE USER's account
+   - Google returns tokens for THE USER's calendar
+   - Tokens stored in THE USER's browser localStorage
+   - Each user has isolated access to their own calendar
+
+This is the standard OAuth flow used by millions of applications. Your app acts as the "bridge" between users and Google, but each user's data stays private and isolated.

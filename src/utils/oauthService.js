@@ -1,6 +1,6 @@
 /**
  * OAuth Service
- * Handles OAuth authentication flows for Google and Apple Calendar
+ * Handles OAuth authentication flows for Google Calendar
  */
 
 // Token storage keys
@@ -8,60 +8,51 @@ const TOKEN_KEYS = {
   GOOGLE_ACCESS_TOKEN: 'luma_google_access_token',
   GOOGLE_REFRESH_TOKEN: 'luma_google_refresh_token',
   GOOGLE_TOKEN_EXPIRY: 'luma_google_token_expiry',
-  APPLE_ACCESS_TOKEN: 'luma_apple_access_token',
-  APPLE_REFRESH_TOKEN: 'luma_apple_refresh_token',
-  APPLE_TOKEN_EXPIRY: 'luma_apple_token_expiry',
 };
 
 /**
  * Store tokens in localStorage
  */
-export function storeTokens(provider, tokens) {
-  const prefix = provider === 'google' ? 'GOOGLE' : 'APPLE';
-
+export function storeTokens(tokens) {
   if (tokens.access_token) {
-    localStorage.setItem(TOKEN_KEYS[`${prefix}_ACCESS_TOKEN`], tokens.access_token);
+    localStorage.setItem(TOKEN_KEYS.GOOGLE_ACCESS_TOKEN, tokens.access_token);
   }
 
   if (tokens.refresh_token) {
-    localStorage.setItem(TOKEN_KEYS[`${prefix}_REFRESH_TOKEN`], tokens.refresh_token);
+    localStorage.setItem(TOKEN_KEYS.GOOGLE_REFRESH_TOKEN, tokens.refresh_token);
   }
 
   if (tokens.expires_in) {
     const expiryTime = Date.now() + (tokens.expires_in * 1000);
-    localStorage.setItem(TOKEN_KEYS[`${prefix}_TOKEN_EXPIRY`], expiryTime.toString());
+    localStorage.setItem(TOKEN_KEYS.GOOGLE_TOKEN_EXPIRY, expiryTime.toString());
   }
 }
 
 /**
  * Retrieve tokens from localStorage
  */
-export function getTokens(provider) {
-  const prefix = provider === 'google' ? 'GOOGLE' : 'APPLE';
-
+export function getTokens() {
   return {
-    accessToken: localStorage.getItem(TOKEN_KEYS[`${prefix}_ACCESS_TOKEN`]),
-    refreshToken: localStorage.getItem(TOKEN_KEYS[`${prefix}_REFRESH_TOKEN`]),
-    expiryTime: localStorage.getItem(TOKEN_KEYS[`${prefix}_TOKEN_EXPIRY`]),
+    accessToken: localStorage.getItem(TOKEN_KEYS.GOOGLE_ACCESS_TOKEN),
+    refreshToken: localStorage.getItem(TOKEN_KEYS.GOOGLE_REFRESH_TOKEN),
+    expiryTime: localStorage.getItem(TOKEN_KEYS.GOOGLE_TOKEN_EXPIRY),
   };
 }
 
 /**
  * Clear tokens from localStorage
  */
-export function clearTokens(provider) {
-  const prefix = provider === 'google' ? 'GOOGLE' : 'APPLE';
-
-  localStorage.removeItem(TOKEN_KEYS[`${prefix}_ACCESS_TOKEN`]);
-  localStorage.removeItem(TOKEN_KEYS[`${prefix}_REFRESH_TOKEN`]);
-  localStorage.removeItem(TOKEN_KEYS[`${prefix}_TOKEN_EXPIRY`]);
+export function clearTokens() {
+  localStorage.removeItem(TOKEN_KEYS.GOOGLE_ACCESS_TOKEN);
+  localStorage.removeItem(TOKEN_KEYS.GOOGLE_REFRESH_TOKEN);
+  localStorage.removeItem(TOKEN_KEYS.GOOGLE_TOKEN_EXPIRY);
 }
 
 /**
  * Check if token is expired
  */
-export function isTokenExpired(provider) {
-  const { expiryTime } = getTokens(provider);
+export function isTokenExpired() {
+  const { expiryTime } = getTokens();
 
   if (!expiryTime) return true;
 
@@ -72,9 +63,9 @@ export function isTokenExpired(provider) {
 /**
  * Check if user is authenticated
  */
-export function isAuthenticated(provider) {
-  const { accessToken } = getTokens(provider);
-  return accessToken && !isTokenExpired(provider);
+export function isAuthenticated() {
+  const { accessToken } = getTokens();
+  return accessToken && !isTokenExpired();
 }
 
 // ============================================================================
@@ -137,7 +128,7 @@ export async function exchangeGoogleCode(code) {
     }
 
     const tokens = await response.json();
-    storeTokens('google', tokens);
+    storeTokens(tokens);
 
     return tokens;
   } catch (error) {
@@ -150,7 +141,7 @@ export async function exchangeGoogleCode(code) {
  * Refresh Google access token
  */
 export async function refreshGoogleToken() {
-  const { refreshToken } = getTokens('google');
+  const { refreshToken } = getTokens();
   const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
   const clientSecret = import.meta.env.VITE_GOOGLE_CLIENT_SECRET;
 
@@ -177,109 +168,11 @@ export async function refreshGoogleToken() {
     }
 
     const tokens = await response.json();
-    storeTokens('google', tokens);
+    storeTokens(tokens);
 
     return tokens;
   } catch (error) {
     console.error('Error refreshing Google token:', error);
-    throw error;
-  }
-}
-
-// ============================================================================
-// APPLE CALENDAR OAUTH
-// ============================================================================
-
-/**
- * Initiate Apple OAuth flow
- * Note: Apple uses Sign in with Apple which requires Apple Developer account
- */
-export function initiateAppleAuth() {
-  const clientId = import.meta.env.VITE_APPLE_CLIENT_ID;
-  const redirectUri = import.meta.env.VITE_APPLE_REDIRECT_URI;
-
-  if (!clientId) {
-    console.error('Apple Client ID not configured');
-    return null;
-  }
-
-  const scope = 'name email';
-  const responseType = 'code';
-  const responseMode = 'form_post';
-
-  const authUrl = `https://appleid.apple.com/auth/authorize?` +
-    `client_id=${encodeURIComponent(clientId)}` +
-    `&redirect_uri=${encodeURIComponent(redirectUri)}` +
-    `&response_type=${responseType}` +
-    `&response_mode=${responseMode}` +
-    `&scope=${encodeURIComponent(scope)}`;
-
-  return authUrl;
-}
-
-/**
- * Exchange Apple authorization code for tokens
- * Note: This requires server-side implementation due to client secret requirements
- */
-export async function exchangeAppleCode(code) {
-  // Apple OAuth requires server-side token exchange due to client secret
-  // This is a placeholder for the client-side portion
-  // You'll need to implement a backend endpoint to handle this
-
-  try {
-    // Call your backend endpoint
-    const response = await fetch('/api/auth/apple/token', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ code }),
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to exchange code for tokens');
-    }
-
-    const tokens = await response.json();
-    storeTokens('apple', tokens);
-
-    return tokens;
-  } catch (error) {
-    console.error('Error exchanging Apple code:', error);
-    throw error;
-  }
-}
-
-/**
- * Refresh Apple access token
- */
-export async function refreshAppleToken() {
-  const { refreshToken } = getTokens('apple');
-
-  if (!refreshToken) {
-    throw new Error('No refresh token available');
-  }
-
-  try {
-    // Call your backend endpoint
-    const response = await fetch('/api/auth/apple/refresh', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ refresh_token: refreshToken }),
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to refresh token');
-    }
-
-    const tokens = await response.json();
-    storeTokens('apple', tokens);
-
-    return tokens;
-  } catch (error) {
-    console.error('Error refreshing Apple token:', error);
     throw error;
   }
 }
@@ -291,7 +184,7 @@ export async function refreshAppleToken() {
 /**
  * Open OAuth popup and handle callback
  */
-export function openOAuthPopup(url, provider) {
+export function openOAuthPopup(url) {
   return new Promise((resolve, reject) => {
     if (!url) {
       reject(new Error('OAuth URL not configured'));
@@ -306,7 +199,7 @@ export function openOAuthPopup(url, provider) {
 
     const popup = window.open(
       url,
-      `${provider}_oauth`,
+      'google_oauth',
       `width=${width},height=${height},left=${left},top=${top},toolbar=no,menubar=no,scrollbars=yes`
     );
 
@@ -330,7 +223,7 @@ export function openOAuthPopup(url, provider) {
         return;
       }
 
-      if (event.data.type === 'oauth_success' && event.data.provider === provider) {
+      if (event.data.type === 'oauth_success' && event.data.provider === 'google') {
         clearInterval(checkPopup);
         window.removeEventListener('message', handleMessage);
 
@@ -339,7 +232,7 @@ export function openOAuthPopup(url, provider) {
         }
 
         resolve(event.data.tokens);
-      } else if (event.data.type === 'oauth_error' && event.data.provider === provider) {
+      } else if (event.data.type === 'oauth_error' && event.data.provider === 'google') {
         clearInterval(checkPopup);
         window.removeEventListener('message', handleMessage);
 

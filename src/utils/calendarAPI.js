@@ -1,12 +1,10 @@
 // Calendar API integration with OAuth support
 import {
     initiateGoogleAuth,
-    initiateAppleAuth,
     openOAuthPopup,
     getTokens,
     isAuthenticated,
     refreshGoogleToken,
-    refreshAppleToken,
     clearTokens,
 } from './oauthService';
 
@@ -17,7 +15,7 @@ import {
 export async function connectGoogleCalendar() {
     try {
         // Check if already authenticated
-        if (isAuthenticated('google')) {
+        if (isAuthenticated()) {
             const events = await fetchGoogleCalendarEvents();
             return {
                 connected: true,
@@ -39,7 +37,7 @@ export async function connectGoogleCalendar() {
         }
 
         // Open OAuth popup
-        await openOAuthPopup(authUrl, 'google');
+        await openOAuthPopup(authUrl);
 
         // Fetch events after successful authentication
         const events = await fetchGoogleCalendarEvents();
@@ -62,98 +60,29 @@ export async function connectGoogleCalendar() {
 }
 
 /**
- * Connect to Apple Calendar
- * Initiates OAuth flow and returns connection status
- */
-export async function connectAppleCalendar() {
-    try {
-        // Check if already authenticated
-        if (isAuthenticated('apple')) {
-            const events = await fetchAppleCalendarEvents();
-            return {
-                connected: true,
-                type: 'apple',
-                events: events,
-            };
-        }
-
-        // Initiate OAuth flow
-        const authUrl = initiateAppleAuth();
-
-        if (!authUrl) {
-            console.warn('Apple OAuth not configured, using mock data');
-            return {
-                connected: true,
-                type: 'apple',
-                events: getAppleMockEvents(),
-            };
-        }
-
-        // Open OAuth popup
-        await openOAuthPopup(authUrl, 'apple');
-
-        // Fetch events after successful authentication
-        const events = await fetchAppleCalendarEvents();
-
-        return {
-            connected: true,
-            type: 'apple',
-            events: events,
-        };
-    } catch (error) {
-        console.error('Error connecting to Apple Calendar:', error);
-
-        // Fallback to mock data
-        return {
-            connected: true,
-            type: 'apple',
-            events: getAppleMockEvents(),
-        };
-    }
-}
-
-/**
  * Disconnect calendar
  */
-export function disconnectCalendar(calendarType) {
-    clearTokens(calendarType);
+export function disconnectCalendar() {
+    clearTokens();
 }
 
 /**
  * Sync calendar events
- * Fetches real events from the connected calendar or falls back to mock data
+ * Fetches real events from Google Calendar or falls back to mock data
  */
-export async function syncCalendarEvents(calendarType) {
+export async function syncCalendarEvents() {
     try {
-        if (calendarType === 'google') {
-            if (isAuthenticated('google')) {
-                return await fetchGoogleCalendarEvents();
-            }
-        } else if (calendarType === 'apple') {
-            if (isAuthenticated('apple')) {
-                return await fetchAppleCalendarEvents();
-            }
+        if (isAuthenticated()) {
+            return await fetchGoogleCalendarEvents();
         }
 
         // Fallback to mock data if not authenticated
-        if (calendarType === 'google') {
-            return getGoogleMockEvents();
-        } else if (calendarType === 'apple') {
-            return getAppleMockEvents();
-        }
-
-        return [];
+        return getGoogleMockEvents();
     } catch (error) {
         console.error('Error syncing calendar events:', error);
 
         // Fallback to mock data on error
-        if (calendarType === 'google') {
-            return getGoogleMockEvents();
-        } else if (calendarType === 'apple') {
-            return getAppleMockEvents();
-        }
-
-        return [];
+        return getGoogleMockEvents();
     }
 }
 
@@ -162,12 +91,12 @@ export async function syncCalendarEvents(calendarType) {
  */
 async function fetchGoogleCalendarEvents() {
     try {
-        let { accessToken } = getTokens('google');
+        let { accessToken } = getTokens();
 
         // Refresh token if expired
         if (!accessToken) {
             await refreshGoogleToken();
-            ({ accessToken } = getTokens('google'));
+            ({ accessToken } = getTokens());
         }
 
         // Get today's date range
@@ -199,25 +128,6 @@ async function fetchGoogleCalendarEvents() {
         return transformGoogleEvents(data.items || []);
     } catch (error) {
         console.error('Error fetching Google Calendar events:', error);
-        throw error;
-    }
-}
-
-/**
- * Fetch events from Apple Calendar (iCloud)
- * Note: Apple doesn't have a direct Calendar API like Google
- * This would require CalDAV implementation or a backend proxy
- */
-async function fetchAppleCalendarEvents() {
-    try {
-        // This is a placeholder for Apple Calendar integration
-        // Apple uses CalDAV protocol, which requires server-side implementation
-        console.warn('Apple Calendar API requires CalDAV implementation');
-
-        // For now, return mock data
-        return getAppleMockEvents();
-    } catch (error) {
-        console.error('Error fetching Apple Calendar events:', error);
         throw error;
     }
 }
@@ -333,55 +243,6 @@ function getGoogleMockEvents() {
             type: 'event',
             date: today,
             color: '#FBBC04', // Google Yellow
-        },
-    ];
-}
-
-/**
- * Get mock Apple Calendar events
- */
-function getAppleMockEvents() {
-    const now = new Date();
-    const today = now.toDateString();
-
-    return [
-        {
-            id: '1',
-            title: 'Morning coffee with Alex',
-            time: '8:30 AM',
-            type: 'event',
-            date: today,
-            color: '#FF3B30', // Apple Red
-        },
-        {
-            id: '2',
-            title: 'Finish project proposal',
-            type: 'todo',
-            date: today,
-            color: '#FF9500', // Apple Orange
-        },
-        {
-            id: '3',
-            title: 'Client presentation',
-            time: '1:00 PM',
-            type: 'event',
-            date: today,
-            color: '#007AFF', // Apple Blue
-        },
-        {
-            id: '4',
-            title: 'Grocery shopping',
-            type: 'todo',
-            date: today,
-            color: '#34C759', // Apple Green
-        },
-        {
-            id: '5',
-            title: 'Dinner reservation',
-            time: '7:30 PM',
-            type: 'event',
-            date: today,
-            color: '#AF52DE', // Apple Purple
         },
     ];
 }

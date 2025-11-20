@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
-import { connectGoogleCalendar, connectAppleCalendar, syncCalendarEvents } from '../utils/calendarAPI';
+import { connectGoogleCalendar, syncCalendarEvents } from '../utils/calendarAPI';
 
 const AppContext = createContext();
 
@@ -195,26 +195,18 @@ export function AppProvider({ children }) {
                 });
             } else if (button === 'DOWN') {
                 updateState({
-                    calendarFocusedOption: Math.min(2, calendarFocusedOption + 1),
+                    calendarFocusedOption: Math.min(1, calendarFocusedOption + 1),
                 });
             } else if (button === 'OK') {
                 // Handle calendar selection
-                if (calendarFocusedOption === 2) {
+                if (calendarFocusedOption === 1) {
                     // Skip
                     nextSetupStep();
                 } else {
-                    // Connect to calendar
-                    const calendarType = calendarFocusedOption === 0 ? 'google' : 'apple';
-
-                    // Start connection process
+                    // Connect to Google Calendar
                     (async () => {
                         try {
-                            let result;
-                            if (calendarType === 'google') {
-                                result = await connectGoogleCalendar();
-                            } else {
-                                result = await connectAppleCalendar();
-                            }
+                            const result = await connectGoogleCalendar();
 
                             // Update state with connection result and events
                             updateState({
@@ -232,7 +224,7 @@ export function AppProvider({ children }) {
                             // Still advance even if connection fails (using mock data)
                             updateState({
                                 calendarConnected: true,
-                                calendarType: calendarType,
+                                calendarType: 'google',
                             });
                             setTimeout(() => {
                                 nextSetupStep();

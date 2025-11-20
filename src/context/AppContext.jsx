@@ -456,6 +456,15 @@ export function AppProvider({ children }) {
         const { inSettingsSubmenu, settingsMenuIndex } = state;
 
         if (button === 'BACK') {
+            // If currently authenticating, cancel authentication
+            if (state.calendarAuthenticating) {
+                updateState({
+                    calendarAuthenticating: false,
+                    deviceCodeData: null,
+                });
+                return;
+            }
+
             if (inSettingsSubmenu) {
                 updateState({ inSettingsSubmenu: false });
             } else {

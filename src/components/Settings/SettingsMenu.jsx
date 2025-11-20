@@ -1,5 +1,7 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
+import { connectGoogleCalendar, disconnectCalendar, syncCalendarEvents } from '../../utils/calendarAPI';
+import GoogleDeviceAuth from '../Setup/GoogleDeviceAuth';
 
 function SettingsMenu() {
     const { state, updateState } = useApp();
@@ -365,11 +367,23 @@ function TemperatureUnitSetting() {
 // Calendar Setting
 function CalendarSetting() {
     const { state, updateState } = useApp();
-    const { calendarConnected, calendarType } = state;
+    const { calendarConnected, calendarType, calendarAuthenticating, deviceCodeData } = state;
     const [focusedOption, setFocusedOption] = React.useState(0);
 
-    const { connectGoogleCalendar, disconnectCalendar, syncCalendarEvents } =
-        require('../../utils/calendarAPI');
+    // If authenticating, show the device code auth screen
+    if (calendarAuthenticating) {
+        return (
+            <GoogleDeviceAuth
+                deviceCodeData={deviceCodeData}
+                onSuccess={() => {
+                    console.log('Authentication successful from settings!');
+                }}
+                onError={(error) => {
+                    console.error('Authentication error from settings:', error);
+                }}
+            />
+        );
+    }
 
     React.useEffect(() => {
         const handleNavigation = (button) => {
@@ -389,43 +403,44 @@ function CalendarSetting() {
 
     const handleOptionSelect = async () => {
         if (focusedOption === 0) {
-            // Reconnect/Connect Google Calendar
+            // Reconnect/Connect Google Calendar using Device Code Flow
+            updateState({ calendarAuthenticating: true });
+
             try {
-                const result = await connectGoogleCalendar();
+                const result = await connectGoogleCalendar((codeData) => {
+                    // Callback when device code is ready
+                    updateState({
+                        deviceCodeData: codeData,
+                    });
+                });
+
                 updateState({
                     calendarConnected: result.connected,
                     calendarType: result.type,
                     calendarEvents: result.events,
+                    calendarAuthenticating: false,
+                    deviceCodeData: null,
                 });
             } catch (error) {
                 console.error('Failed to connect calendar:', error);
+                updateState({
+                    calendarAuthenticating: false,
+                    deviceCodeData: null,
+                });
             }
         } else if (focusedOption === 1) {
-            // Disconnect Calendar or Sync Now
+            // Disconnect Calendar
             if (!calendarConnected) {
                 return; // Do nothing if not connected
             }
 
-            // Check if this is disconnect or sync based on second option state
-            if (focusedOption === 1 && calendarConnected) {
-                // Disconnect
-                disconnectCalendar();
-                updateState({
-                    calendarConnected: false,
-                    calendarType: null,
-                    calendarEvents: [],
-                });
-            }
-        } else if (focusedOption === 2) {
-            // Sync Now
-            try {
-                if (calendarConnected) {
-                    const events = await syncCalendarEvents();
-                    updateState({ calendarEvents: events });
-                }
-            } catch (error) {
-                console.error('Failed to sync calendar:', error);
-            }
+            // Disconnect
+            disconnectCalendar();
+            updateState({
+                calendarConnected: false,
+                calendarType: null,
+                calendarEvents: [],
+            });
         }
     };
 

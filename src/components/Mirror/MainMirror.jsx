@@ -15,7 +15,7 @@ function MainMirror() {
     const calendarPos = widgetPositions.calendar || { x: 5, y: 95 };
 
     return (
-        <div className="w-full h-full bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 relative">
+        <div className="w-full h-full bg-black relative">
             {/* Time Widget - Positioned by percentage */}
             {activeWidgets.time && (
                 <div

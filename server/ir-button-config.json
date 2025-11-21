@@ -1,0 +1,86 @@
+{
+  "description": "IR Remote Button Mapping Configuration for Luma Mirror",
+  "note": "Supports short press and long press (2 seconds) actions",
+  "lircSocket": "/var/run/lirc/lircd",
+  "websocketPort": 8765,
+  "buttonMappings": {
+    "KEY_POWER": {
+      "action": "POWER",
+      "description": "Toggle display on/off"
+    },
+    "KEY_UP": {
+      "action": "UP",
+      "longPressAction": "CHANNEL_UP",
+      "description": "Navigate up / Move widget up (hold for 2s: Next widget)"
+    },
+    "KEY_DOWN": {
+      "action": "DOWN",
+      "longPressAction": "CHANNEL_DOWN",
+      "description": "Navigate down / Move widget down (hold for 2s: Previous widget)"
+    },
+    "KEY_LEFT": {
+      "action": "LEFT",
+      "longPressAction": "BACK",
+      "description": "Navigate left / Move widget left (hold for 2s: BACK)"
+    },
+    "KEY_RIGHT": {
+      "action": "RIGHT",
+      "description": "Navigate right / Move widget right"
+    },
+    "KEY_ENTER": {
+      "action": "OK",
+      "description": "Confirm selection / Toggle item"
+    },
+    "KEY_OK": {
+      "action": "OK",
+      "description": "Confirm selection / Toggle item (alternate)"
+    },
+    "KEY_PLAY": {
+      "action": "OK",
+      "description": "Confirm selection (media remote)"
+    },
+    "KEY_PLAYPAUSE": {
+      "action": "OK",
+      "description": "Confirm selection (media remote)"
+    },
+    "KEY_VOLUMEUP": {
+      "action": "BRIGHTNESS_UP",
+      "description": "Increase brightness (+10%)"
+    },
+    "KEY_VOLUMEDOWN": {
+      "action": "BRIGHTNESS_DOWN",
+      "description": "Decrease brightness (-10%)"
+    },
+    "KEY_0": {
+      "action": "BRIGHTNESS_DOWN",
+      "description": "Decrease brightness (numeric key for simple remotes)"
+    },
+    "KEY_1": {
+      "action": "BRIGHTNESS_UP",
+      "description": "Increase brightness (numeric key for simple remotes)"
+    }
+  },
+  "remoteTypes": {
+    "simpleMediaRemote": {
+      "description": "Simple IR remote (like ELEGOO remote) - uses long press for BACK and CHANNEL functions",
+      "requiredButtons": ["KEY_POWER", "KEY_UP", "KEY_DOWN", "KEY_LEFT", "KEY_RIGHT", "KEY_ENTER"],
+      "longPressButtons": {
+        "BACK": "Hold LEFT for 2 seconds",
+        "CHANNEL_UP": "Hold UP for 2 seconds",
+        "CHANNEL_DOWN": "Hold DOWN for 2 seconds"
+      },
+      "brightnessButtons": {
+        "BRIGHTNESS_UP": ["KEY_VOLUMEUP", "KEY_1"],
+        "BRIGHTNESS_DOWN": ["KEY_VOLUMEDOWN", "KEY_0"]
+      }
+    }
+  },
+  "notes": [
+    "Button names (e.g., KEY_POWER) come from LIRC and are defined in your remote's configuration file",
+    "Long press functionality: Hold LEFT for 2s = BACK, Hold UP for 2s = CHANNEL_UP, Hold DOWN for 2s = CHANNEL_DOWN",
+    "Short press for normal navigation: UP/DOWN/LEFT/RIGHT work as expected when pressed briefly",
+    "Brightness controls: Use VOL+/VOL- buttons or numeric keys 1/0",
+    "To customize mappings for your specific remote, edit server/ir-remote-server.js and restart the IR server",
+    "The 'action' field must match one of the button actions in the Luma app (UP, DOWN, LEFT, RIGHT, OK, BACK, POWER, CHANNEL_UP, CHANNEL_DOWN, BRIGHTNESS_UP, BRIGHTNESS_DOWN)"
+  ]
+}

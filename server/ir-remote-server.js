@@ -15,7 +15,9 @@ const WS_PORT = 8765;
 const LIRC_SOCKET = '/var/run/lirc/lircd';
 
 // IR button to Luma action mapping
+// Supports multiple button types for different remotes
 const BUTTON_MAP = {
+  // Core navigation
   'KEY_POWER': 'POWER',
   'KEY_UP': 'UP',
   'KEY_DOWN': 'DOWN',
@@ -23,10 +25,27 @@ const BUTTON_MAP = {
   'KEY_RIGHT': 'RIGHT',
   'KEY_ENTER': 'OK',
   'KEY_OK': 'OK',
+  'KEY_PLAY': 'OK',          // Alternative OK for media remotes
+  'KEY_PLAYPAUSE': 'OK',     // Alternative OK for media remotes
+
+  // Back button (with alternatives for remotes without BACK)
   'KEY_BACK': 'BACK',
   'KEY_EXIT': 'BACK',
+  'KEY_ESC': 'BACK',
+  'KEY_PREVIOUS': 'BACK',    // Previous track button as BACK alternative
+  'KEY_9': 'BACK',           // Number 9 as BACK alternative
+
+  // Channel buttons (with alternatives for remotes without CH buttons)
   'KEY_CHANNELUP': 'CHANNEL_UP',
+  'KEY_NEXT': 'CHANNEL_UP',  // Next track button as CHANNEL_UP alternative
+  'KEY_2': 'CHANNEL_UP',     // Number 2 as CHANNEL_UP alternative
+  'KEY_PAGEUP': 'CHANNEL_UP',
+
   'KEY_CHANNELDOWN': 'CHANNEL_DOWN',
+  'KEY_8': 'CHANNEL_DOWN',   // Number 8 as CHANNEL_DOWN alternative
+  'KEY_PAGEDOWN': 'CHANNEL_DOWN',
+
+  // Brightness controls (multiple alternatives)
   'KEY_VOLUMEUP': 'BRIGHTNESS_UP',
   'KEY_VOLUMEDOWN': 'BRIGHTNESS_DOWN',
   'KEY_0': 'BRIGHTNESS_DOWN',

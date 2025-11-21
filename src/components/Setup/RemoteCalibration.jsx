@@ -6,15 +6,15 @@ function RemoteCalibration() {
     const { remoteCalibrationStep } = state;
 
     const steps = [
-        { button: 'UP', symbol: '↑', label: 'Up' },
-        { button: 'RIGHT', symbol: '→', label: 'Right' },
-        { button: 'DOWN', symbol: '↓', label: 'Down' },
-        { button: 'LEFT', symbol: '←', label: 'Left' },
-        { button: 'OK', symbol: 'OK', label: 'OK/Select' },
-        { button: 'CHANNEL_UP', symbol: 'CH+', label: 'Channel Up' },
-        { button: 'CHANNEL_DOWN', symbol: 'CH−', label: 'Channel Down' },
-        { button: 'BRIGHTNESS_UP', symbol: '+', label: 'Brightness Up' },
-        { button: 'BRIGHTNESS_DOWN', symbol: '−', label: 'Brightness Down' },
+        { button: 'UP', symbol: '↑', label: 'Up', alternatives: [] },
+        { button: 'RIGHT', symbol: '→', label: 'Right', alternatives: [] },
+        { button: 'DOWN', symbol: '↓', label: 'Down', alternatives: [] },
+        { button: 'LEFT', symbol: '←', label: 'Left', alternatives: [] },
+        { button: 'OK', symbol: 'OK', label: 'OK/Select/Play', alternatives: [] },
+        { button: 'CHANNEL_UP', symbol: 'CH+', label: 'Channel Up', alternatives: ['Next (▶▶|) or 2'] },
+        { button: 'CHANNEL_DOWN', symbol: 'CH−', label: 'Channel Down', alternatives: ['Prev (|◀◀) or 8'] },
+        { button: 'BRIGHTNESS_UP', symbol: '+', label: 'Brightness Up', alternatives: ['VOL+ or 1'] },
+        { button: 'BRIGHTNESS_DOWN', symbol: '−', label: 'Brightness Down', alternatives: ['VOL− or 0'] },
     ];
 
     const currentStep = steps[remoteCalibrationStep];
@@ -35,6 +35,13 @@ function RemoteCalibration() {
                             {currentStep.symbol}
                         </div>
                         <p className="text-white text-3xl font-semibold">{currentStep.label}</p>
+                        {currentStep.alternatives && currentStep.alternatives.length > 0 && (
+                            <p className="text-gray-400 text-lg mt-3">
+                                {currentStep.alternatives.map((alt, i) => (
+                                    <span key={i}>{alt}</span>
+                                ))}
+                            </p>
+                        )}
                     </div>
 
                     {/* Progress indicators */}

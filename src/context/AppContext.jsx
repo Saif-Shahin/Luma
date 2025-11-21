@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { connectGoogleCalendar, syncCalendarEvents } from '../utils/calendarAPI';
 import { clearTokens } from '../utils/oauthService';
+import { useIRRemote } from '../hooks/useIRRemote';
 
 const AppContext = createContext();
 
@@ -504,7 +505,6 @@ export function AppProvider({ children }) {
     const handleSettingsSubmenuNavigation = (button) => {
         const { settingsMenuIndex, timeFormat, tempUnit, activeWidgets } = state;
         const menuItems = [
-            'wifi',
             'calendar',
             'time-format',
             'temperature-unit',
@@ -645,7 +645,6 @@ export function AppProvider({ children }) {
 
     const handleSettingsMenuSelect = (index) => {
         const menuItems = [
-            'wifi',
             'calendar',
             'time-format',
             'temperature-unit',
@@ -662,9 +661,6 @@ export function AppProvider({ children }) {
                 currentScreen: 'mirror',
                 currentFocus: 'settings-icon',
             });
-        } else if (selected === 'wifi') {
-            // WiFi is disabled for now, show disabled submenu
-            updateState({ inSettingsSubmenu: true });
         } else {
             updateState({ inSettingsSubmenu: true });
         }
@@ -752,6 +748,9 @@ export function AppProvider({ children }) {
             updateState({ currentSetupStep: steps[currentIndex - 1] });
         }
     };
+
+    // Connect to IR remote server
+    useIRRemote(handleRemoteAction);
 
     const value = {
         state,

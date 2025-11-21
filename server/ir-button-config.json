@@ -1,0 +1,72 @@
+{
+  "description": "IR Remote Button Mapping Configuration for Luma Mirror",
+  "lircSocket": "/var/run/lirc/lircd",
+  "websocketPort": 8765,
+  "buttonMappings": {
+    "KEY_POWER": {
+      "action": "POWER",
+      "description": "Toggle display on/off"
+    },
+    "KEY_UP": {
+      "action": "UP",
+      "description": "Navigate up / Move widget up"
+    },
+    "KEY_DOWN": {
+      "action": "DOWN",
+      "description": "Navigate down / Move widget down"
+    },
+    "KEY_LEFT": {
+      "action": "LEFT",
+      "description": "Navigate left / Move widget left"
+    },
+    "KEY_RIGHT": {
+      "action": "RIGHT",
+      "description": "Navigate right / Move widget right"
+    },
+    "KEY_ENTER": {
+      "action": "OK",
+      "description": "Confirm selection / Toggle item"
+    },
+    "KEY_OK": {
+      "action": "OK",
+      "description": "Confirm selection / Toggle item (alternate)"
+    },
+    "KEY_BACK": {
+      "action": "BACK",
+      "description": "Go back / Exit submenu"
+    },
+    "KEY_EXIT": {
+      "action": "BACK",
+      "description": "Go back / Exit submenu (alternate)"
+    },
+    "KEY_CHANNELUP": {
+      "action": "CHANNEL_UP",
+      "description": "Next widget in rearrange mode"
+    },
+    "KEY_CHANNELDOWN": {
+      "action": "CHANNEL_DOWN",
+      "description": "Previous widget in rearrange mode"
+    },
+    "KEY_VOLUMEUP": {
+      "action": "BRIGHTNESS_UP",
+      "description": "Increase brightness (+10%)"
+    },
+    "KEY_VOLUMEDOWN": {
+      "action": "BRIGHTNESS_DOWN",
+      "description": "Decrease brightness (-10%)"
+    },
+    "KEY_0": {
+      "action": "BRIGHTNESS_DOWN",
+      "description": "Decrease brightness (numeric key)"
+    },
+    "KEY_1": {
+      "action": "BRIGHTNESS_UP",
+      "description": "Increase brightness (numeric key)"
+    }
+  },
+  "notes": [
+    "Button names (e.g., KEY_POWER) come from LIRC and are defined in your remote's configuration file",
+    "To customize mappings for your specific remote, edit this file and restart the IR server",
+    "The 'action' field must match one of the button actions in the Luma app (UP, DOWN, LEFT, RIGHT, OK, BACK, POWER, CHANNEL_UP, CHANNEL_DOWN, BRIGHTNESS_UP, BRIGHTNESS_DOWN)"
+  ]
+}

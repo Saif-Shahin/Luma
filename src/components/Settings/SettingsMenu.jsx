@@ -7,7 +7,6 @@ function SettingsMenu() {
     const { settingsMenuIndex, inSettingsSubmenu } = state;
 
     const menuItems = [
-        { id: 'wifi', label: 'WiFi', icon: '📶', disabled: true },
         { id: 'calendar', label: 'Calendar', icon: '📅' },
         { id: 'time-format', label: 'Time Format', icon: '🕐' },
         { id: 'temperature-unit', label: 'Temperature Unit', icon: '🌡️' },

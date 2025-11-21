@@ -103,14 +103,11 @@ Follow the on-screen instructions:
 
 **Recommended button names** (matching Luma's mappings):
 - `KEY_POWER` - Power button
-- `KEY_UP` - Up arrow
-- `KEY_DOWN` - Down arrow
-- `KEY_LEFT` - Left arrow
+- `KEY_UP` - Up arrow (hold for 2s = Channel Up)
+- `KEY_DOWN` - Down arrow (hold for 2s = Channel Down)
+- `KEY_LEFT` - Left arrow (hold for 2s = Back)
 - `KEY_RIGHT` - Right arrow
 - `KEY_ENTER` or `KEY_OK` - OK/Enter button
-- `KEY_BACK` or `KEY_EXIT` - Back button
-- `KEY_CHANNELUP` - Channel up
-- `KEY_CHANNELDOWN` - Channel down
 - `KEY_VOLUMEUP` or `KEY_1` - Volume up / Brightness up
 - `KEY_VOLUMEDOWN` or `KEY_0` - Volume down / Brightness down
 
@@ -192,6 +189,7 @@ When the app starts, you should see in the console:
 
 The IR remote controls the Luma mirror with the following button mappings:
 
+### Short Press (Quick Press)
 | IR Button | Luma Action | Function |
 |-----------|-------------|----------|
 | KEY_POWER | POWER | Toggle display on/off |
@@ -200,30 +198,54 @@ The IR remote controls the Luma mirror with the following button mappings:
 | KEY_LEFT | LEFT | Navigate left / Move widget left |
 | KEY_RIGHT | RIGHT | Navigate right / Move widget right |
 | KEY_ENTER / KEY_OK | OK | Confirm selection / Toggle item |
-| KEY_BACK / KEY_EXIT | BACK | Go back / Exit submenu |
-| KEY_CHANNELUP | CHANNEL_UP | Next widget in rearrange mode |
-| KEY_CHANNELDOWN | CHANNEL_DOWN | Previous widget in rearrange mode |
 | KEY_VOLUMEUP / KEY_1 | BRIGHTNESS_UP | Increase brightness (+10%) |
 | KEY_VOLUMEDOWN / KEY_0 | BRIGHTNESS_DOWN | Decrease brightness (-10%) |
 
+### Long Press (Hold for 2 seconds)
+| IR Button | Luma Action | Function |
+|-----------|-------------|----------|
+| KEY_LEFT (hold 2s) | BACK | Go back / Exit submenu |
+| KEY_UP (hold 2s) | CHANNEL_UP | Next widget in rearrange mode |
+| KEY_DOWN (hold 2s) | CHANNEL_DOWN | Previous widget in rearrange mode |
+
 ## Customizing Button Mappings
 
-To customize button mappings for your specific remote:
+To customize button mappings for your specific remote, edit `server/ir-remote-server.js`:
 
-1. Edit `server/ir-button-config.json`
-2. Modify the `buttonMappings` section
-3. Restart the IR remote server
+### Adding Short Press Actions
 
-Example:
+Edit the `BUTTON_MAP` object:
 
-```json
-{
-  "KEY_CUSTOM_BUTTON": {
-    "action": "BACK",
-    "description": "Custom back button"
-  }
-}
+```javascript
+const BUTTON_MAP = {
+  'KEY_POWER': 'POWER',
+  'KEY_UP': 'UP',
+  // Add your custom mappings here
+};
 ```
+
+### Adding Long Press Actions
+
+Edit the `LONG_PRESS_MAP` object:
+
+```javascript
+const LONG_PRESS_MAP = {
+  'KEY_LEFT': 'BACK',        // Hold LEFT for 2s → BACK
+  'KEY_UP': 'CHANNEL_UP',    // Hold UP for 2s → CHANNEL_UP
+  'KEY_DOWN': 'CHANNEL_DOWN', // Hold DOWN for 2s → CHANNEL_DOWN
+  // Add your custom long-press mappings here
+};
+```
+
+### Adjusting Long Press Duration
+
+Edit the `LONG_PRESS_THRESHOLD` constant (default = 20, approximately 2 seconds):
+
+```javascript
+const LONG_PRESS_THRESHOLD = 20; // ~2 seconds (LIRC sends ~10 repeats/second)
+```
+
+After making changes, restart the IR remote server.
 
 ## Troubleshooting
 

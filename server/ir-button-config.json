@@ -1,6 +1,6 @@
 {
   "description": "IR Remote Button Mapping Configuration for Luma Mirror",
-  "note": "Supports multiple remote types - both full-featured TV remotes and simple media remotes",
+  "note": "Supports short press and long press (2 seconds) actions",
   "lircSocket": "/var/run/lirc/lircd",
   "websocketPort": 8765,
   "buttonMappings": {
@@ -10,15 +10,18 @@
     },
     "KEY_UP": {
       "action": "UP",
-      "description": "Navigate up / Move widget up"
+      "longPressAction": "CHANNEL_UP",
+      "description": "Navigate up / Move widget up (hold for 2s: Next widget)"
     },
     "KEY_DOWN": {
       "action": "DOWN",
-      "description": "Navigate down / Move widget down"
+      "longPressAction": "CHANNEL_DOWN",
+      "description": "Navigate down / Move widget down (hold for 2s: Previous widget)"
     },
     "KEY_LEFT": {
       "action": "LEFT",
-      "description": "Navigate left / Move widget left"
+      "longPressAction": "BACK",
+      "description": "Navigate left / Move widget left (hold for 2s: BACK)"
     },
     "KEY_RIGHT": {
       "action": "RIGHT",
@@ -40,54 +43,6 @@
       "action": "OK",
       "description": "Confirm selection (media remote)"
     },
-    "KEY_BACK": {
-      "action": "BACK",
-      "description": "Go back / Exit submenu (primary)"
-    },
-    "KEY_EXIT": {
-      "action": "BACK",
-      "description": "Go back / Exit submenu (alternate)"
-    },
-    "KEY_ESC": {
-      "action": "BACK",
-      "description": "Go back / Exit submenu (alternate)"
-    },
-    "KEY_PREVIOUS": {
-      "action": "BACK",
-      "description": "Go back / Exit submenu (previous track button |◀◀)"
-    },
-    "KEY_9": {
-      "action": "BACK",
-      "description": "Go back / Exit submenu (number 9 for simple remotes)"
-    },
-    "KEY_CHANNELUP": {
-      "action": "CHANNEL_UP",
-      "description": "Next widget in rearrange mode (primary)"
-    },
-    "KEY_NEXT": {
-      "action": "CHANNEL_UP",
-      "description": "Next widget in rearrange mode (next track button ▶▶|)"
-    },
-    "KEY_2": {
-      "action": "CHANNEL_UP",
-      "description": "Next widget in rearrange mode (number 2 for simple remotes)"
-    },
-    "KEY_PAGEUP": {
-      "action": "CHANNEL_UP",
-      "description": "Next widget in rearrange mode (alternate)"
-    },
-    "KEY_CHANNELDOWN": {
-      "action": "CHANNEL_DOWN",
-      "description": "Previous widget in rearrange mode (primary)"
-    },
-    "KEY_8": {
-      "action": "CHANNEL_DOWN",
-      "description": "Previous widget in rearrange mode (number 8 for simple remotes)"
-    },
-    "KEY_PAGEDOWN": {
-      "action": "CHANNEL_DOWN",
-      "description": "Previous widget in rearrange mode (alternate)"
-    },
     "KEY_VOLUMEUP": {
       "action": "BRIGHTNESS_UP",
       "description": "Increase brightness (+10%)"
@@ -106,17 +61,15 @@
     }
   },
   "remoteTypes": {
-    "fullFeaturedTVRemote": {
-      "description": "TV remote with dedicated CH, BACK, and VOL buttons",
-      "requiredButtons": ["KEY_POWER", "KEY_UP", "KEY_DOWN", "KEY_LEFT", "KEY_RIGHT", "KEY_ENTER", "KEY_BACK", "KEY_CHANNELUP", "KEY_CHANNELDOWN", "KEY_VOLUMEUP", "KEY_VOLUMEDOWN"]
-    },
     "simpleMediaRemote": {
-      "description": "Simple IR remote without CH or BACK buttons (like ELEGOO remote)",
+      "description": "Simple IR remote (like ELEGOO remote) - uses long press for BACK and CHANNEL functions",
       "requiredButtons": ["KEY_POWER", "KEY_UP", "KEY_DOWN", "KEY_LEFT", "KEY_RIGHT", "KEY_ENTER"],
-      "alternativeButtons": {
-        "BACK": ["KEY_PREVIOUS (|◀◀)", "KEY_9"],
-        "CHANNEL_UP": ["KEY_NEXT (▶▶|)", "KEY_2"],
-        "CHANNEL_DOWN": ["KEY_8"],
+      "longPressButtons": {
+        "BACK": "Hold LEFT for 2 seconds",
+        "CHANNEL_UP": "Hold UP for 2 seconds",
+        "CHANNEL_DOWN": "Hold DOWN for 2 seconds"
+      },
+      "brightnessButtons": {
         "BRIGHTNESS_UP": ["KEY_VOLUMEUP", "KEY_1"],
         "BRIGHTNESS_DOWN": ["KEY_VOLUMEDOWN", "KEY_0"]
       }
@@ -124,9 +77,9 @@
   },
   "notes": [
     "Button names (e.g., KEY_POWER) come from LIRC and are defined in your remote's configuration file",
-    "This configuration supports BOTH full-featured TV remotes AND simple media remotes",
-    "For simple remotes without BACK: Use Previous track button (|◀◀) or number 9",
-    "For simple remotes without CHANNEL buttons: Use Next/Prev track buttons (▶▶|/|◀◀) or numbers 2/8",
+    "Long press functionality: Hold LEFT for 2s = BACK, Hold UP for 2s = CHANNEL_UP, Hold DOWN for 2s = CHANNEL_DOWN",
+    "Short press for normal navigation: UP/DOWN/LEFT/RIGHT work as expected when pressed briefly",
+    "Brightness controls: Use VOL+/VOL- buttons or numeric keys 1/0",
     "To customize mappings for your specific remote, edit server/ir-remote-server.js and restart the IR server",
     "The 'action' field must match one of the button actions in the Luma app (UP, DOWN, LEFT, RIGHT, OK, BACK, POWER, CHANNEL_UP, CHANNEL_DOWN, BRIGHTNESS_UP, BRIGHTNESS_DOWN)"
   ]

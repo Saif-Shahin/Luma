@@ -11,8 +11,8 @@ function RemoteCalibration() {
         { button: 'DOWN', symbol: '↓', label: 'Down', alternatives: [] },
         { button: 'LEFT', symbol: '←', label: 'Left', alternatives: [] },
         { button: 'OK', symbol: 'OK', label: 'OK/Select/Play', alternatives: [] },
-        { button: 'CHANNEL_UP', symbol: 'CH+', label: 'Channel Up', alternatives: ['Next (▶▶|) or 2'] },
-        { button: 'CHANNEL_DOWN', symbol: 'CH−', label: 'Channel Down', alternatives: ['Prev (|◀◀) or 8'] },
+        { button: 'CHANNEL_UP', symbol: '↑', label: 'Hold UP for 2 seconds', alternatives: ['(Channel Up function)'] },
+        { button: 'CHANNEL_DOWN', symbol: '↓', label: 'Hold DOWN for 2 seconds', alternatives: ['(Channel Down function)'] },
         { button: 'BRIGHTNESS_UP', symbol: '+', label: 'Brightness Up', alternatives: ['VOL+ or 1'] },
         { button: 'BRIGHTNESS_DOWN', symbol: '−', label: 'Brightness Down', alternatives: ['VOL− or 0'] },
     ];

@@ -15,7 +15,7 @@ const WS_PORT = 8765;
 const LIRC_SOCKET = '/var/run/lirc/lircd';
 
 // IR button to Luma action mapping
-// Supports multiple button types for different remotes
+// Supports short press and long press (2 seconds) actions
 const BUTTON_MAP = {
   // Core navigation
   'KEY_POWER': 'POWER',
@@ -28,35 +28,34 @@ const BUTTON_MAP = {
   'KEY_PLAY': 'OK',          // Alternative OK for media remotes
   'KEY_PLAYPAUSE': 'OK',     // Alternative OK for media remotes
 
-  // Back button (with alternatives for remotes without BACK)
-  'KEY_BACK': 'BACK',
-  'KEY_EXIT': 'BACK',
-  'KEY_ESC': 'BACK',
-  'KEY_PREVIOUS': 'BACK',    // Previous track button as BACK alternative
-  'KEY_9': 'BACK',           // Number 9 as BACK alternative
-
-  // Channel buttons (with alternatives for remotes without CH buttons)
-  'KEY_CHANNELUP': 'CHANNEL_UP',
-  'KEY_NEXT': 'CHANNEL_UP',  // Next track button as CHANNEL_UP alternative
-  'KEY_2': 'CHANNEL_UP',     // Number 2 as CHANNEL_UP alternative
-  'KEY_PAGEUP': 'CHANNEL_UP',
-
-  'KEY_CHANNELDOWN': 'CHANNEL_DOWN',
-  'KEY_8': 'CHANNEL_DOWN',   // Number 8 as CHANNEL_DOWN alternative
-  'KEY_PAGEDOWN': 'CHANNEL_DOWN',
-
-  // Brightness controls (multiple alternatives)
+  // Brightness controls
   'KEY_VOLUMEUP': 'BRIGHTNESS_UP',
   'KEY_VOLUMEDOWN': 'BRIGHTNESS_DOWN',
   'KEY_0': 'BRIGHTNESS_DOWN',
   'KEY_1': 'BRIGHTNESS_UP',
 };
 
+// Long press actions (hold for 2 seconds)
+// These override the normal button actions when held
+const LONG_PRESS_MAP = {
+  'KEY_LEFT': 'BACK',        // Hold LEFT for 2s → BACK
+  'KEY_UP': 'CHANNEL_UP',    // Hold UP for 2s → CHANNEL_UP
+  'KEY_DOWN': 'CHANNEL_DOWN', // Hold DOWN for 2s → CHANNEL_DOWN
+};
+
+// Long press threshold (in repeat counts)
+// LIRC typically sends ~10 repeats per second, so 20 ≈ 2 seconds
+const LONG_PRESS_THRESHOLD = 20;
+
 class IRRemoteServer {
   constructor() {
     this.wss = null;
     this.irProcess = null;
     this.clients = new Set();
+
+    // Track button press state for long-press detection
+    this.buttonPressState = new Map(); // button -> { startTime, repeatCount, longPressFired, timeout }
+    this.releaseTimeout = 200; // ms - time without repeat events = button released
   }
 
   start() {
@@ -112,9 +111,8 @@ class IRRemoteServer {
             const button = parts[2]; // Button name (e.g., KEY_UP)
             const repeat = parseInt(parts[1], 16); // Repeat count
 
-            // Ignore repeat presses to avoid flooding
-            if (button && repeat === 0) {
-              this.handleIRButton(button);
+            if (button) {
+              this.handleIRButton(button, repeat);
             }
           }
         });
@@ -132,14 +130,68 @@ class IRRemoteServer {
     });
   }
 
-  handleIRButton(button) {
-    const action = BUTTON_MAP[button];
+  handleIRButton(button, repeat) {
+    // Check if this button supports long press
+    const hasLongPress = LONG_PRESS_MAP.hasOwnProperty(button);
+    const normalAction = BUTTON_MAP[button];
 
-    if (action) {
-      console.log(`IR Button: ${button} -> Action: ${action}`);
-      this.broadcastAction(action);
+    if (repeat === 0) {
+      // Initial button press
+      if (hasLongPress) {
+        // Track this press for potential long-press detection
+        const state = {
+          startTime: Date.now(),
+          repeatCount: 0,
+          longPressFired: false,
+          timeout: null,
+        };
+
+        // Set up release timeout
+        state.timeout = setTimeout(() => {
+          // Button released - fire short press if long press wasn't fired
+          if (!state.longPressFired) {
+            console.log(`IR Button SHORT PRESS: ${button} -> Action: ${normalAction}`);
+            this.broadcastAction(normalAction);
+          }
+          this.buttonPressState.delete(button);
+        }, this.releaseTimeout);
+
+        this.buttonPressState.set(button, state);
+        // Don't fire action yet - wait to see if it's a long press
+      } else if (normalAction) {
+        // No long press mapping, fire immediately
+        console.log(`IR Button: ${button} -> Action: ${normalAction}`);
+        this.broadcastAction(normalAction);
+      } else {
+        console.log(`Unknown IR button: ${button}`);
+      }
     } else {
-      console.log(`Unknown IR button: ${button}`);
+      // Button is being held (repeat > 0)
+      const state = this.buttonPressState.get(button);
+
+      if (state && hasLongPress) {
+        // Clear the release timeout since button is still held
+        if (state.timeout) {
+          clearTimeout(state.timeout);
+        }
+
+        // Reset release timeout
+        state.timeout = setTimeout(() => {
+          // Button released - don't fire short press since we already handled it
+          this.buttonPressState.delete(button);
+        }, this.releaseTimeout);
+
+        state.repeatCount = repeat;
+
+        // Check if long press threshold reached
+        if (repeat >= LONG_PRESS_THRESHOLD && !state.longPressFired) {
+          // Fire long press action
+          const longPressAction = LONG_PRESS_MAP[button];
+          console.log(`IR Button LONG PRESS: ${button} (${repeat} repeats) -> Action: ${longPressAction}`);
+          this.broadcastAction(longPressAction);
+          state.longPressFired = true;
+        }
+      }
     }
   }
 

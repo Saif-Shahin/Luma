@@ -6,9 +6,8 @@
  * to connected clients via WebSocket.
  */
 
-const WebSocket = require('ws');
-const { spawn } = require('child_process');
-const { exec } = require('child_process');
+import WebSocket from 'ws';
+import { spawn, exec } from 'child_process';
 
 // Configuration
 const WS_PORT = 8765;

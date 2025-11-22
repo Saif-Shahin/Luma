@@ -7,7 +7,6 @@ function SettingsMenu() {
     const { settingsMenuIndex, inSettingsSubmenu } = state;
 
     const menuItems = [
-        { id: 'wifi', label: 'WiFi', icon: '📶', disabled: true },
         { id: 'calendar', label: 'Calendar', icon: '📅' },
         { id: 'time-format', label: 'Time Format', icon: '🕐' },
         { id: 'temperature-unit', label: 'Temperature Unit', icon: '🌡️' },
@@ -49,7 +48,8 @@ function SettingsMenu() {
                 </div>
 
                 <div className="mt-12 text-center text-gray-500 text-lg">
-                    <p>Use ↑↓ to navigate • Press OK to select • Press BACK to exit</p>
+                    <p>Use ↑↓ to navigate • Press OK to select</p>
+                    <p className="text-sm mt-2">BACK: Hold ← for 2s to exit</p>
                 </div>
             </div>
         </div>
@@ -62,7 +62,7 @@ function SettingsMenu() {
                     <div className="max-w-2xl w-full text-center">
                         <h1 className="text-white text-4xl font-bold mb-12">{item.label}</h1>
                         <p className="text-gray-400 text-2xl mb-8">This feature is coming soon</p>
-                        <p className="text-gray-500">Press BACK to return</p>
+                        <p className="text-gray-500">Press BACK (Hold ← for 2s) to return</p>
                     </div>
                 </div>
             );
@@ -140,7 +140,8 @@ function DisplayElementsSelector() {
                 </div>
 
                 <div className="mt-8 text-center text-gray-500">
-                    <p>Use ↑↓ to navigate • Toggle with ← → or OK • Press BACK to return</p>
+                    <p>Use ↑↓ to navigate • Toggle with ← → or OK</p>
+                    <p className="text-sm">BACK: Hold ← for 2s to return</p>
                 </div>
             </div>
         </div>
@@ -240,9 +241,9 @@ function RearrangeScreen() {
                     <div className="bg-blue-600/20 border-2 border-blue-500 rounded-xl p-4">
                         <p className="text-blue-300 text-sm mb-3 text-center">Controls:</p>
                         <div className="space-y-2 text-white text-sm">
-                            <div className="flex justify-between">
+                            <div className="flex justify-between gap-2">
                                 <span>Switch Widget:</span>
-                                <span className="font-mono">CH+/CH−</span>
+                                <span className="font-mono text-right">Hold ↑/↓ for 2s</span>
                             </div>
                             <div className="flex justify-between">
                                 <span>Move:</span>
@@ -252,9 +253,9 @@ function RearrangeScreen() {
                                 <span>Save & Exit:</span>
                                 <span className="font-mono">OK</span>
                             </div>
-                            <div className="flex justify-between">
+                            <div className="flex justify-between gap-2">
                                 <span>Cancel:</span>
-                                <span className="font-mono">BACK</span>
+                                <span className="font-mono text-right">Hold ← for 2s</span>
                             </div>
                         </div>
                     </div>
@@ -309,7 +310,8 @@ function TimeFormatSetting() {
                 </div>
 
                 <div className="mt-8 text-center text-gray-500">
-                    <p>Use ← → to toggle • Press BACK to return</p>
+                    <p>Use ← → to toggle</p>
+                    <p className="text-sm">BACK: Hold ← for 2s to return</p>
                 </div>
             </div>
         </div>
@@ -356,7 +358,8 @@ function TemperatureUnitSetting() {
                 </div>
 
                 <div className="mt-8 text-center text-gray-500">
-                    <p>Use ← → to toggle • Press BACK to return</p>
+                    <p>Use ← → to toggle</p>
+                    <p className="text-sm">BACK: Hold ← for 2s to return</p>
                 </div>
             </div>
         </div>
@@ -471,7 +474,8 @@ function CalendarSetting() {
                 </div>
 
                 <div className="mt-8 text-center text-gray-500">
-                    <p>Use ↑↓ to navigate • Press OK to select • Press BACK to return</p>
+                    <p>Use ↑↓ to navigate • Press OK to select</p>
+                    <p className="text-sm">BACK: Hold ← for 2s to return</p>
                 </div>
             </div>
         </div>

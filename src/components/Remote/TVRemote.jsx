@@ -26,6 +26,10 @@ function TVRemote() {
                 <div className="text-center mb-8">
                     <h2 className="text-white text-xl font-bold">TV Remote</h2>
                     <p className="text-gray-400 text-xs mt-1">Smart Mirror Control</p>
+                    <div className="mt-3 flex items-center justify-center gap-2">
+                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                        <span className="text-green-400 text-xs">IR Remote Ready</span>
+                    </div>
                 </div>
 
                 {/* Power Button */}

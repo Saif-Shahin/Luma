@@ -15,7 +15,7 @@ function MainMirror() {
     const calendarPos = widgetPositions.calendar || { x: 5, y: 95 };
 
     return (
-        <div className="w-full h-full bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 relative">
+        <div className="w-full h-full bg-black relative">
             {/* Time Widget - Positioned by percentage */}
             {activeWidgets.time && (
                 <div
@@ -27,7 +27,7 @@ function MainMirror() {
                     }}
                 >
                     <div className="bg-black/30 backdrop-blur-sm rounded-2xl p-4">
-                        <TimeWidget />
+                        <TimeWidget/>
                     </div>
                 </div>
             )}
@@ -44,7 +44,7 @@ function MainMirror() {
                     }}
                 >
                     <div className="bg-black/30 backdrop-blur-sm rounded-2xl p-4">
-                        <WeatherWidget />
+                        <WeatherWidget/>
                     </div>
                 </div>
             )}
@@ -61,7 +61,7 @@ function MainMirror() {
                     }}
                 >
                     <div className="max-w-md bg-black/30 backdrop-blur-sm rounded-2xl p-4">
-                        <CalendarWidget />
+                        <CalendarWidget/>
                     </div>
                 </div>
             )}
@@ -69,15 +69,15 @@ function MainMirror() {
             {/* Settings Icon - Bottom Center */}
             <div
                 className="absolute bottom-12 left-1/2 transform -translate-x-1/2 pointer-events-none"
-                style={{ zIndex: 10 }}
+                style={{zIndex: 10}}
             >
-                <SettingsIcon />
+                <SettingsIcon/>
             </div>
 
             {/* Last Updated - Bottom Right */}
             <div
                 className="absolute bottom-12 right-12 pointer-events-none"
-                style={{ zIndex: 10 }}
+                style={{zIndex: 10}}
             >
                 <div className="text-gray-600 text-sm bg-black/30 backdrop-blur-sm rounded-lg px-3 py-1">
                     Updated {new Date().toLocaleTimeString('en-US', {

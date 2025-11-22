@@ -124,7 +124,7 @@ function GoogleDeviceAuth({ deviceCodeData, onSuccess, onError, onCancel }) {
 
                         {/* Cancel Button Hint */}
                         <div className="mt-8 text-gray-500 text-lg">
-                            <p>Press BACK to cancel</p>
+                            <p>Press BACK (hold |◀◀ for 2 seconds) to cancel</p>
                         </div>
                     </>
                 )}

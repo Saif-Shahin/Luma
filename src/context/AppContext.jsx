@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { connectGoogleCalendar, syncCalendarEvents } from '../utils/calendarAPI';
 import { clearTokens } from '../utils/oauthService';
+import { useIRRemote } from '../hooks/useIRRemote';
 
 const AppContext = createContext();
 
@@ -157,7 +158,7 @@ export function AppProvider({ children }) {
     };
 
     const handleSetupNavigation = (button) => {
-        const { currentSetupStep, remoteCalibrationStep, calendarFocusedOption } = state;
+        const { currentSetupStep, calendarFocusedOption } = state;
 
         // Handle BACK button to go to previous step
         if (button === 'BACK' && currentSetupStep !== 'welcome') {
@@ -173,21 +174,7 @@ export function AppProvider({ children }) {
             return;
         }
 
-        if (currentSetupStep === 'remote-calibration') {
-            const expectedButtons = ['UP', 'RIGHT', 'DOWN', 'LEFT', 'OK', 'CHANNEL_UP', 'CHANNEL_DOWN', 'BRIGHTNESS_UP', 'BRIGHTNESS_DOWN'];
-            if (button === expectedButtons[remoteCalibrationStep]) {
-                const nextStep = remoteCalibrationStep + 1;
-                if (nextStep >= 9) {
-                    // Calibration complete
-                    updateState({
-                        currentSetupStep: 'setup-prompt',
-                        remoteCalibrationStep: 0,
-                    });
-                } else {
-                    updateState({ remoteCalibrationStep: nextStep });
-                }
-            }
-        } else if (currentSetupStep === 'setup-prompt') {
+        if (currentSetupStep === 'setup-prompt') {
             if (button === 'OK') {
                 // User selected current option (Yes/Later)
                 if (state.currentFocus === 'yes' || state.currentFocus === null) {
@@ -504,7 +491,6 @@ export function AppProvider({ children }) {
     const handleSettingsSubmenuNavigation = (button) => {
         const { settingsMenuIndex, timeFormat, tempUnit, activeWidgets } = state;
         const menuItems = [
-            'wifi',
             'calendar',
             'time-format',
             'temperature-unit',
@@ -645,7 +631,6 @@ export function AppProvider({ children }) {
 
     const handleSettingsMenuSelect = (index) => {
         const menuItems = [
-            'wifi',
             'calendar',
             'time-format',
             'temperature-unit',
@@ -662,9 +647,6 @@ export function AppProvider({ children }) {
                 currentScreen: 'mirror',
                 currentFocus: 'settings-icon',
             });
-        } else if (selected === 'wifi') {
-            // WiFi is disabled for now, show disabled submenu
-            updateState({ inSettingsSubmenu: true });
         } else {
             updateState({ inSettingsSubmenu: true });
         }
@@ -715,7 +697,6 @@ export function AppProvider({ children }) {
     const nextSetupStep = () => {
         const steps = [
             'welcome',
-            'remote-calibration',
             'setup-prompt',
             'calendar',
             'location',
@@ -739,7 +720,6 @@ export function AppProvider({ children }) {
     const previousSetupStep = () => {
         const steps = [
             'welcome',
-            'remote-calibration',
             'setup-prompt',
             'calendar',
             'location',
@@ -752,6 +732,9 @@ export function AppProvider({ children }) {
             updateState({ currentSetupStep: steps[currentIndex - 1] });
         }
     };
+
+    // Connect to IR remote server
+    useIRRemote(handleRemoteAction);
 
     const value = {
         state,

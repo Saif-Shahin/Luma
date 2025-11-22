@@ -1,7 +1,6 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
 import Welcome from '../Setup/Welcome';
-import RemoteCalibration from '../Setup/RemoteCalibration';
 import SetupPrompt from '../Setup/SetupPrompt';
 import CalendarSync from '../Setup/CalendarSync';
 import LocationSetup from '../Setup/LocationSetup';
@@ -34,8 +33,6 @@ function MirrorDisplay() {
             switch (currentSetupStep) {
                 case 'welcome':
                     return <Welcome />;
-                case 'remote-calibration':
-                    return <RemoteCalibration />;
                 case 'setup-prompt':
                     return <SetupPrompt />;
                 case 'calendar':

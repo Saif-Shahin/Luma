@@ -48,7 +48,7 @@ function TVRemote() {
                     <div className="grid grid-cols-3 gap-2">
                         <div></div>
                         <RemoteButton
-                            label="↑"
+                            label="▲"
                             onClick={() => handleButtonPress('UP')}
                             isActive={activeButton === 'UP'}
                             variant="direction"
@@ -56,7 +56,7 @@ function TVRemote() {
                         <div></div>
 
                         <RemoteButton
-                            label="←"
+                            label="⏮"
                             onClick={() => handleButtonPress('LEFT')}
                             isActive={activeButton === 'LEFT'}
                             variant="direction"
@@ -68,7 +68,7 @@ function TVRemote() {
                             variant="ok"
                         />
                         <RemoteButton
-                            label="→"
+                            label="⏭"
                             onClick={() => handleButtonPress('RIGHT')}
                             isActive={activeButton === 'RIGHT'}
                             variant="direction"
@@ -76,7 +76,7 @@ function TVRemote() {
 
                         <div></div>
                         <RemoteButton
-                            label="↓"
+                            label="▼"
                             onClick={() => handleButtonPress('DOWN')}
                             isActive={activeButton === 'DOWN'}
                             variant="direction"

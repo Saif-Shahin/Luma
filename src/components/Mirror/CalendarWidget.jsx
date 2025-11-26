@@ -88,7 +88,7 @@ function CalendarWidget() {
             </div>
             {focusedCalendarIndex >= 0 && (
                 <div className="mt-4 text-gray-400 text-sm text-center">
-                    Press OK to mark as {events[focusedCalendarIndex]?.completed ? 'incomplete' : 'complete'}
+                    Press ⏯ to mark as {events[focusedCalendarIndex]?.completed ? 'incomplete' : 'complete'}
                 </div>
             )}
         </div>

@@ -39,7 +39,7 @@ function TempFormat() {
                 </div>
 
                 <div className="mt-12 text-gray-400">
-                    <p className="text-lg">Use ← → to toggle • Press OK to confirm</p>
+                    <p className="text-lg">Use ⏮ ⏭ to toggle • Press ⏯ to confirm</p>
                 </div>
             </div>
         </div>

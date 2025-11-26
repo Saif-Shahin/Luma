@@ -77,7 +77,7 @@ function OnScreenKeyboard({ onComplete }) {
             </div>
 
             <div className="mt-6 text-center text-gray-400 text-lg">
-                Use ↑↓←→ to navigate • Press OK to select key
+                Use ▲▼⏮⏭ to navigate • Press ⏯ to select key
             </div>
         </div>
     );

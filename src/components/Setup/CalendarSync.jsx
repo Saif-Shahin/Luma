@@ -26,7 +26,7 @@ function CalendarSync() {
     // Otherwise, show the calendar selection screen
     const options = [
         { type: 'google', label: 'Google Calendar', icon: 'G', color: 'blue-600' },
-        { type: 'skip', label: 'Skip for now', icon: '→', color: 'gray-700' },
+        { type: 'skip', label: 'Skip for now', icon: '⏭', color: 'gray-700' },
     ];
 
     return (
@@ -61,7 +61,7 @@ function CalendarSync() {
                                     <span className="text-white text-2xl font-semibold">{option.label}</span>
                                 </div>
                                 {focusedOption === index && (
-                                    <span className="text-blue-500 text-3xl">→</span>
+                                    <span className="text-blue-500 text-3xl">⏭</span>
                                 )}
                             </div>
                         </div>
@@ -69,7 +69,7 @@ function CalendarSync() {
                 </div>
 
                 <div className="mt-12 text-gray-500 text-lg">
-                    <p>Use ↑↓ to navigate • Press OK to select</p>
+                    <p>Use ▲▼ to navigate • Press ⏯ to select</p>
                 </div>
             </div>
         </div>

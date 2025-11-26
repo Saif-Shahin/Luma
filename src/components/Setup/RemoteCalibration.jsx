@@ -6,11 +6,11 @@ function RemoteCalibration() {
     const { remoteCalibrationStep } = state;
 
     const steps = [
-        { button: 'UP', symbol: '↑', label: 'Up' },
-        { button: 'RIGHT', symbol: '→', label: 'Right' },
-        { button: 'DOWN', symbol: '↓', label: 'Down' },
-        { button: 'LEFT', symbol: '←', label: 'Left' },
-        { button: 'OK', symbol: 'OK', label: 'OK/Select' },
+        { button: 'UP', symbol: '▲', label: 'Up' },
+        { button: 'RIGHT', symbol: '⏭', label: 'Right' },
+        { button: 'DOWN', symbol: '▼', label: 'Down' },
+        { button: 'LEFT', symbol: '⏮', label: 'Left' },
+        { button: 'OK', symbol: 'OK', label: '⏯' },
         { button: 'CHANNEL_UP', symbol: 'CH+', label: 'Channel Up' },
         { button: 'CHANNEL_DOWN', symbol: 'CH−', label: 'Channel Down' },
         { button: 'BRIGHTNESS_UP', symbol: '+', label: 'Brightness Up' },

@@ -41,15 +41,15 @@ function SettingsMenu() {
                                 {item.disabled && <span className="text-sm text-gray-400 ml-2">(Coming Soon)</span>}
               </span>
                             {index === settingsMenuIndex && !item.disabled && (
-                                <span className="text-white text-2xl">→</span>
+                                <span className="text-white text-2xl">⏭</span>
                             )}
                         </div>
                     ))}
                 </div>
 
                 <div className="mt-12 text-center text-gray-500 text-lg">
-                    <p>Use ↑↓ to navigate • Press OK to select</p>
-                    <p className="text-sm mt-2">BACK: Hold ← for 2s to exit</p>
+                    <p>Use ▲▼ to navigate • Press ⏯ to select</p>
+                    <p className="text-sm mt-2">BACK: Hold ⏮ for 2s to exit</p>
                 </div>
             </div>
         </div>
@@ -62,7 +62,7 @@ function SettingsMenu() {
                     <div className="max-w-2xl w-full text-center">
                         <h1 className="text-white text-4xl font-bold mb-12">{item.label}</h1>
                         <p className="text-gray-400 text-2xl mb-8">This feature is coming soon</p>
-                        <p className="text-gray-500">Press BACK (Hold ← for 2s) to return</p>
+                        <p className="text-gray-500">Press BACK (Hold ⏮ for 2s) to return</p>
                     </div>
                 </div>
             );
@@ -140,8 +140,8 @@ function DisplayElementsSelector() {
                 </div>
 
                 <div className="mt-8 text-center text-gray-500">
-                    <p>Use ↑↓ to navigate • Toggle with ← → or OK</p>
-                    <p className="text-sm">BACK: Hold ← for 2s to return</p>
+                    <p>Use ▲▼ to navigate • Toggle with ⏮ ⏭ or ⏯</p>
+                    <p className="text-sm">BACK: Hold ⏮ for 2s to return</p>
                 </div>
             </div>
         </div>
@@ -243,19 +243,19 @@ function RearrangeScreen() {
                         <div className="space-y-2 text-white text-sm">
                             <div className="flex justify-between gap-2">
                                 <span>Switch Widget:</span>
-                                <span className="font-mono text-right">Hold ↑/↓ for 2s</span>
+                                <span className="font-mono text-right">Hold ▲/▼ for 2s</span>
                             </div>
                             <div className="flex justify-between">
                                 <span>Move:</span>
-                                <span className="font-mono">↑ ↓ ← →</span>
+                                <span className="font-mono">▲ ▼ ⏮ ⏭</span>
                             </div>
                             <div className="flex justify-between">
                                 <span>Save & Exit:</span>
-                                <span className="font-mono">OK</span>
+                                <span className="font-mono">⏯</span>
                             </div>
                             <div className="flex justify-between gap-2">
                                 <span>Cancel:</span>
-                                <span className="font-mono text-right">Hold ← for 2s</span>
+                                <span className="font-mono text-right">Hold ⏮ for 2s</span>
                             </div>
                         </div>
                     </div>
@@ -263,7 +263,7 @@ function RearrangeScreen() {
 
                 <div className="mt-8 text-center text-gray-500 text-xs">
                     <p>Position elements anywhere on screen</p>
-                    <p className="mt-1">Changes save when you press OK</p>
+                    <p className="mt-1">Changes save when you press ⏯</p>
                 </div>
             </div>
         </div>
@@ -310,8 +310,8 @@ function TimeFormatSetting() {
                 </div>
 
                 <div className="mt-8 text-center text-gray-500">
-                    <p>Use ← → to toggle</p>
-                    <p className="text-sm">BACK: Hold ← for 2s to return</p>
+                    <p>Use ⏮ ⏭ to toggle</p>
+                    <p className="text-sm">BACK: Hold ⏮ for 2s to return</p>
                 </div>
             </div>
         </div>
@@ -358,8 +358,8 @@ function TemperatureUnitSetting() {
                 </div>
 
                 <div className="mt-8 text-center text-gray-500">
-                    <p>Use ← → to toggle</p>
-                    <p className="text-sm">BACK: Hold ← for 2s to return</p>
+                    <p>Use ⏮ ⏭ to toggle</p>
+                    <p className="text-sm">BACK: Hold ⏮ for 2s to return</p>
                 </div>
             </div>
         </div>
@@ -466,7 +466,7 @@ function CalendarSetting() {
                                     <p className="text-gray-400 text-lg">{option.description}</p>
                                 </div>
                                 {calendarSettingsFocusedOption === index && !option.disabled && (
-                                    <span className="text-blue-500 text-3xl">→</span>
+                                    <span className="text-blue-500 text-3xl">⏭</span>
                                 )}
                             </div>
                         </div>
@@ -474,8 +474,8 @@ function CalendarSetting() {
                 </div>
 
                 <div className="mt-8 text-center text-gray-500">
-                    <p>Use ↑↓ to navigate • Press OK to select</p>
-                    <p className="text-sm">BACK: Hold ← for 2s to return</p>
+                    <p>Use ▲▼ to navigate • Press ⏯ to select</p>
+                    <p className="text-sm">BACK: Hold ⏮ for 2s to return</p>
                 </div>
             </div>
         </div>

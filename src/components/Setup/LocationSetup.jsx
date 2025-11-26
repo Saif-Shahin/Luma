@@ -37,7 +37,7 @@ function LocationSetup() {
                 {/* Matching Cities Display */}
                 {keyboardInput && filteredCities.length > 0 && (
                     <div className="mt-8">
-                        <p className="text-gray-400 text-lg mb-4">Matching cities (use ↑↓ on DONE to select):</p>
+                        <p className="text-gray-400 text-lg mb-4">Matching cities (use ▲▼ on DONE to select):</p>
                         <div className="space-y-2">
                             {filteredCities.slice(0, 5).map((cityOption, index) => (
                                 <div
@@ -53,13 +53,13 @@ function LocationSetup() {
                                     </p>
                                     <p className="text-gray-400 text-sm">{cityOption.country}</p>
                                     {index === selectedCityIndex && (
-                                        <p className="text-blue-400 text-xs mt-1">← Selected</p>
+                                        <p className="text-blue-400 text-xs mt-1">⏮ Selected</p>
                                     )}
                                 </div>
                             ))}
                         </div>
                         <p className="text-gray-500 text-sm mt-4">
-                            Navigate to DONE, then use ↑↓ to select city. Press OK on DONE to confirm.
+                            Navigate to DONE, then use ▲▼ to select city. Press ⏯ on DONE to confirm.
                         </p>
                     </div>
                 )}

@@ -43,7 +43,7 @@ function SetupPrompt() {
                 </div>
 
                 <div className="mt-12 text-gray-500">
-                    <p className="text-lg">Use ← → to select, press OK to continue</p>
+                    <p className="text-lg">Use ⏮ ⏭ to select, press ⏯ to continue</p>
                 </div>
             </div>
         </div>

@@ -12,6 +12,9 @@ function BrightnessSetup() {
                 <p className="text-gray-300 text-2xl mb-12">
                     Learn how to adjust your mirror's brightness
                 </p>
+                <p className="text-gray-300 text-2xl mb-12">
+                    You can do this at any time by using the VOL+ and VOL- buttons on your remote.
+                </p>
 
                 {/* Brightness Display */}
                 <div className="mb-12">
@@ -33,8 +36,8 @@ function BrightnessSetup() {
 
                 {/* Instructions */}
                 <div className="text-gray-400 space-y-3">
-                    <p className="text-lg">Use VOL+ to increase brightness</p>
-                    <p className="text-lg">Use VOL- to decrease brightness</p>
+                    <p className="text-lg">Press VOL+ to increase brightness</p>
+                    <p className="text-lg">Press VOL- to decrease brightness</p>
                     <p className="text-lg mt-6">Press ⏯ to continue</p>
                 </div>
             </div>

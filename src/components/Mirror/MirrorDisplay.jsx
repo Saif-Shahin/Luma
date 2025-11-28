@@ -1,6 +1,7 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
 import Welcome from '../Setup/Welcome';
+import BrightnessSetup from '../Setup/BrightnessSetup';
 import SetupPrompt from '../Setup/SetupPrompt';
 import CalendarSync from '../Setup/CalendarSync';
 import LocationSetup from '../Setup/LocationSetup';
@@ -34,6 +35,8 @@ function MirrorDisplay() {
                     return <Welcome />;
                 case 'setup-prompt':
                     return <SetupPrompt />;
+                case 'brightness-setup':
+                    return <BrightnessSetup />;
                 case 'calendar':
                     return <CalendarSync />;
                 case 'location':

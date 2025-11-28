@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
-import { connectGoogleCalendar, syncCalendarEvents } from '../utils/calendarAPI';
+import { connectGoogleCalendar } from '../utils/calendarAPI';
 import { clearTokens } from '../utils/oauthService';
 import { useIRRemote } from '../hooks/useIRRemote';
 
@@ -9,7 +9,7 @@ export function AppProvider({ children }) {
     const [state, setState] = useState({
         // Setup Flow
         setupComplete: false,
-        currentSetupStep: 'welcome', // 'welcome', 'remote-calibration', 'setup-prompt', 'calendar', 'location', 'time-format', 'temp-format', 'complete'
+        currentSetupStep: 'welcome', // 'welcome', 'setup-prompt', 'brightness-setup', 'calendar', 'location', 'time-format', 'temp-format', 'complete'
         remoteCalibrationStep: 0, // 0-4 for UP, RIGHT, DOWN, LEFT, OK
 
         // User Preferences
@@ -178,7 +178,7 @@ export function AppProvider({ children }) {
             if (button === 'OK') {
                 // User selected current option (Yes/Later)
                 if (state.currentFocus === 'yes' || state.currentFocus === null) {
-                    updateState({ currentSetupStep: 'calendar' });
+                    updateState({ currentSetupStep: 'brightness-setup' });
                 } else {
                     // Skip setup
                     updateState({
@@ -193,7 +193,14 @@ export function AppProvider({ children }) {
                     currentFocus: state.currentFocus === 'yes' ? 'later' : 'yes',
                 });
             }
-        } else if (currentSetupStep === 'calendar') {
+        }else if (currentSetupStep === 'brightness-setup') {
+            // Brightness adjustment (VOL+/VOL- handled globally)
+            if (button === 'OK') {
+                // Confirm and advance to next step
+                nextSetupStep();
+            }
+        }
+        else if (currentSetupStep === 'calendar') {
             // Calendar setup navigation
             if (button === 'UP') {
                 updateState({
@@ -698,6 +705,7 @@ export function AppProvider({ children }) {
         const steps = [
             'welcome',
             'setup-prompt',
+            'brightness-setup',
             'calendar',
             'location',
             'time-format',
@@ -721,6 +729,7 @@ export function AppProvider({ children }) {
         const steps = [
             'welcome',
             'setup-prompt',
+            'brightness-setup',
             'calendar',
             'location',
             'time-format',

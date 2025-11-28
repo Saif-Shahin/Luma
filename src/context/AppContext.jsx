@@ -9,7 +9,7 @@ export function AppProvider({ children }) {
     const [state, setState] = useState({
         // Setup Flow
         setupComplete: false,
-        currentSetupStep: 'welcome', // 'welcome', 'remote-calibration', 'setup-prompt', 'calendar', 'location', 'time-format', 'temp-format', 'complete'
+        currentSetupStep: 'welcome', // 'welcome', 'brightness-setup', 'setup-prompt', 'calendar', 'location', 'time-format', 'temp-format', 'complete'
         remoteCalibrationStep: 0, // 0-4 for UP, RIGHT, DOWN, LEFT, OK
 
         // User Preferences
@@ -174,7 +174,13 @@ export function AppProvider({ children }) {
             return;
         }
 
-        if (currentSetupStep === 'setup-prompt') {
+        if (currentSetupStep === 'brightness-setup') {
+            // Brightness adjustment (VOL+/VOL- handled globally)
+            if (button === 'OK') {
+                // Confirm and advance to next step
+                nextSetupStep();
+            }
+        } else if (currentSetupStep === 'setup-prompt') {
             if (button === 'OK') {
                 // User selected current option (Yes/Later)
                 if (state.currentFocus === 'yes' || state.currentFocus === null) {
@@ -697,6 +703,7 @@ export function AppProvider({ children }) {
     const nextSetupStep = () => {
         const steps = [
             'welcome',
+            'brightness-setup',
             'setup-prompt',
             'calendar',
             'location',
@@ -720,6 +727,7 @@ export function AppProvider({ children }) {
     const previousSetupStep = () => {
         const steps = [
             'welcome',
+            'brightness-setup',
             'setup-prompt',
             'calendar',
             'location',

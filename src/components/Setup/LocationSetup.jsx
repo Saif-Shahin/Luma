@@ -53,7 +53,7 @@ function LocationSetup() {
                                     </p>
                                     <p className="text-gray-400 text-sm">{cityOption.country}</p>
                                     {index === selectedCityIndex && (
-                                        <p className="text-blue-400 text-xs mt-1">⏮ Selected</p>
+                                        <p className="text-blue-400 text-xs mt-1"> Selected</p>
                                     )}
                                 </div>
                             ))}

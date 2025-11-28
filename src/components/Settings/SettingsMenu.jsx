@@ -49,7 +49,7 @@ function SettingsMenu() {
 
                 <div className="mt-12 text-center text-gray-500 text-lg">
                     <p>Use ▲▼ to navigate • Press ⏯ to select</p>
-                    <p className="text-sm mt-2">BACK: Hold ⏮ for 2s to exit</p>
+                    <p className="text-sm mt-2">BACK: FUNC/STOP to exit</p>
                 </div>
             </div>
         </div>
@@ -62,7 +62,7 @@ function SettingsMenu() {
                     <div className="max-w-2xl w-full text-center">
                         <h1 className="text-white text-4xl font-bold mb-12">{item.label}</h1>
                         <p className="text-gray-400 text-2xl mb-8">This feature is coming soon</p>
-                        <p className="text-gray-500">Press BACK (Hold ⏮ for 2s) to return</p>
+                        <p className="text-gray-500">Press BACK (FUNC/STOP) to return</p>
                     </div>
                 </div>
             );
@@ -141,7 +141,7 @@ function DisplayElementsSelector() {
 
                 <div className="mt-8 text-center text-gray-500">
                     <p>Use ▲▼ to navigate • Toggle with ⏮ ⏭ or ⏯</p>
-                    <p className="text-sm">BACK: Hold ⏮ for 2s to return</p>
+                    <p className="text-sm">BACK: FUNC/STOP to return</p>
                 </div>
             </div>
         </div>
@@ -243,7 +243,7 @@ function RearrangeScreen() {
                         <div className="space-y-2 text-white text-sm">
                             <div className="flex justify-between gap-2">
                                 <span>Switch Widget:</span>
-                                <span className="font-mono text-right">Hold ▲/▼ for 2s</span>
+                                <span className="font-mono text-right">EQ Button</span>
                             </div>
                             <div className="flex justify-between">
                                 <span>Move:</span>
@@ -255,7 +255,7 @@ function RearrangeScreen() {
                             </div>
                             <div className="flex justify-between gap-2">
                                 <span>Cancel:</span>
-                                <span className="font-mono text-right">Hold ⏮ for 2s</span>
+                                <span className="font-mono text-right">FUNC/STOP</span>
                             </div>
                         </div>
                     </div>
@@ -311,7 +311,7 @@ function TimeFormatSetting() {
 
                 <div className="mt-8 text-center text-gray-500">
                     <p>Use ⏮ ⏭ to toggle</p>
-                    <p className="text-sm">BACK: Hold ⏮ for 2s to return</p>
+                    <p className="text-sm">BACK: FUNC/STOP to return</p>
                 </div>
             </div>
         </div>
@@ -359,7 +359,7 @@ function TemperatureUnitSetting() {
 
                 <div className="mt-8 text-center text-gray-500">
                     <p>Use ⏮ ⏭ to toggle</p>
-                    <p className="text-sm">BACK: Hold ⏮ for 2s to return</p>
+                    <p className="text-sm">BACK: FUNC/STOP to return</p>
                 </div>
             </div>
         </div>
@@ -475,7 +475,7 @@ function CalendarSetting() {
 
                 <div className="mt-8 text-center text-gray-500">
                     <p>Use ▲▼ to navigate • Press ⏯ to select</p>
-                    <p className="text-sm">BACK: Hold ⏮ for 2s to return</p>
+                    <p className="text-sm">BACK: FUNC/STOP to return</p>
                 </div>
             </div>
         </div>

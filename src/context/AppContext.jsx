@@ -136,6 +136,13 @@ export function AppProvider({ children }) {
 
     // Handle remote button actions
     const handleRemoteAction = (button) => {
+        // Enhanced logging for visibility
+        console.log('%c═══════════════════════════════════════', 'color: #00ff00; font-weight: bold');
+        console.log('%c🎮 BUTTON PRESSED: ' + button, 'color: #00ff00; font-size: 16px; font-weight: bold');
+        console.log('%c   Screen: ' + state.currentScreen, 'color: #00aaff; font-size: 14px');
+        console.log('%c   Focus: ' + state.currentFocus, 'color: #00aaff; font-size: 14px');
+        console.log('%c═══════════════════════════════════════', 'color: #00ff00; font-weight: bold');
+
         console.log('Remote action:', button, 'Current screen:', state.currentScreen, 'Focus:', state.currentFocus);
 
         // Handle based on current screen

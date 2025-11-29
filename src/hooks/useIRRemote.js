@@ -118,22 +118,26 @@ export function useIRRemote(handleRemoteAction) {
             if (demoRunningRef.current) return;
 
             demoRunningRef.current = true;
-            console.log('🎬 Starting client-side demo mode...');
-            console.log('⏳ Waiting for setup screen to load...');
+            console.log('%c━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'color: #ff00ff; font-weight: bold');
+            console.log('%c🎬 DEMO MODE ACTIVATED!', 'color: #ff00ff; font-size: 20px; font-weight: bold; background: #000');
+            console.log('%c━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'color: #ff00ff; font-weight: bold');
+            console.log('%c⏳ Waiting 7 seconds for setup screen to load...', 'color: #ffff00; font-size: 14px');
 
             // Wait for setup screen to load
             await sleep(DEMO_START_DELAY);
 
             // Run through demo sequence
-            for (const step of DEMO_SEQUENCE) {
+            for (let i = 0; i < DEMO_SEQUENCE.length; i++) {
+                const step = DEMO_SEQUENCE[i];
                 if (!mounted || !demoRunningRef.current) break;
 
-                console.log(`🎮 Demo: ${step.action}`);
+                console.log('%c🎮 DEMO ACTION [' + (i + 1) + '/' + DEMO_SEQUENCE.length + ']: ' + step.action,
+                    'color: #00ff00; font-size: 14px; font-weight: bold; background: #001100; padding: 4px');
                 handleRemoteAction(step.action);
                 await sleep(step.delay);
             }
 
-            console.log('✅ Demo sequence complete!');
+            console.log('%c✅ DEMO SEQUENCE COMPLETE!', 'color: #00ff00; font-size: 18px; font-weight: bold; background: #003300; padding: 8px');
             demoRunningRef.current = false;
         }
 

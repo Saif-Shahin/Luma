@@ -126,16 +126,30 @@ export function useIRRemote(handleRemoteAction) {
             // Wait for setup screen to load
             await sleep(DEMO_START_DELAY);
 
+            console.log('%c🔍 DEBUG: About to run demo sequence', 'color: yellow; font-size: 14px');
+            console.log('Sequence length:', DEMO_SEQUENCE.length);
+            console.log('mounted:', mounted);
+            console.log('demoRunningRef.current:', demoRunningRef.current);
+
             // Run through demo sequence
             for (let i = 0; i < DEMO_SEQUENCE.length; i++) {
                 const step = DEMO_SEQUENCE[i];
-                if (!mounted || !demoRunningRef.current) break;
+
+                console.log('%c🔍 Loop iteration ' + i, 'color: cyan');
+                console.log('mounted:', mounted, 'demoRunningRef.current:', demoRunningRef.current);
+
+                if (!mounted || !demoRunningRef.current) {
+                    console.log('%c❌ Breaking loop - mounted or demoRunning is false', 'color: red; font-size: 14px');
+                    break;
+                }
 
                 console.log('%c🎮 DEMO ACTION [' + (i + 1) + '/' + DEMO_SEQUENCE.length + ']: ' + step.action,
                     'color: #00ff00; font-size: 14px; font-weight: bold; background: #001100; padding: 4px');
                 handleRemoteAction(step.action);
                 await sleep(step.delay);
             }
+
+            console.log('%c🔍 DEBUG: Loop completed', 'color: yellow; font-size: 14px');
 
             console.log('%c✅ DEMO SEQUENCE COMPLETE!', 'color: #00ff00; font-size: 18px; font-weight: bold; background: #003300; padding: 8px');
             demoRunningRef.current = false;

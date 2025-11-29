@@ -8,7 +8,7 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "ir-server": "node server/ir-remote-server.js",
+    "ir-server": "node server/ir-remote-server.cjs",
     "start": "npm run ir-server & npm run dev"
   },
   "dependencies": {

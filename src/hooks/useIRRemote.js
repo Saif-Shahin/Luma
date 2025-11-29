@@ -120,6 +120,10 @@ export function useIRRemote(handleRemoteAction) {
     useEffect(() => {
         let mounted = true;
 
+        // Check if demo mode is forced via URL parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const forceDemoMode = urlParams.get('demo') === 'true';
+
         // Run demo sequence client-side
         async function runDemoSequence() {
             if (demoRunningRef.current) return;
@@ -257,16 +261,24 @@ export function useIRRemote(handleRemoteAction) {
             }
         }
 
-        // Initial connection attempt
-        connect();
-
-        // Fallback: if not connected after timeout, start demo mode
-        fallbackTimeoutRef.current = setTimeout(() => {
-            if (!connectionAttemptedRef.current && !demoRunningRef.current) {
-                console.log('⚠️ Connection timeout - starting demo mode');
+        // If demo mode is forced, start immediately and skip WebSocket connection
+        if (forceDemoMode) {
+            console.log('🎯 Demo mode forced via URL parameter (?demo=true)');
+            setTimeout(() => {
                 runDemoSequence();
-            }
-        }, DEMO_TRIGGER_TIMEOUT);
+            }, 500); // Small delay to let app initialize
+        } else {
+            // Initial connection attempt
+            connect();
+
+            // Fallback: if not connected after timeout, start demo mode
+            fallbackTimeoutRef.current = setTimeout(() => {
+                if (!connectionAttemptedRef.current && !demoRunningRef.current) {
+                    console.log('⚠️ Connection timeout - starting demo mode');
+                    runDemoSequence();
+                }
+            }, DEMO_TRIGGER_TIMEOUT);
+        }
 
         // Cleanup on unmount
         return () => {

@@ -12,7 +12,7 @@
     "ir-demo": "node server/ir-demo-simulator.js",
     "ir-demo-auto": "node server/ir-demo-simulator.js demo",
     "start": "npm run ir-server & npm run dev",
-    "demo": "npm run ir-demo & npm run dev"
+    "demo": "npm run ir-demo-auto & npm run dev"
   },
   "dependencies": {
     "qrcode.react": "^4.2.0",

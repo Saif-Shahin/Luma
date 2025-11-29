@@ -27,17 +27,20 @@ const BUTTON_MAP = {
   'KEY_PLAY': 'OK',          // Alternative OK for media remotes
   'KEY_PLAYPAUSE': 'OK',     // Alternative OK for media remotes
 
+  // Back button
+  'KEY_STOP': 'BACK',        // FUNC/STOP button for BACK
+  'KEY_STOPCD': 'BACK',      // Alternative STOP button name
+
   // Brightness controls
-  'KEY_VOLUMEUP': 'BRIGHTNESS_UP',
-  'KEY_VOLUMEDOWN': 'BRIGHTNESS_DOWN',
-  'KEY_0': 'BRIGHTNESS_DOWN',
-  'KEY_1': 'BRIGHTNESS_UP',
+  'KEY_VOLUMEUP': 'BRIGHTNESS_UP',   // VOL+ for brightness up
+  'KEY_VOLUMEDOWN': 'BRIGHTNESS_DOWN', // VOL- for brightness down
+  'KEY_0': 'BRIGHTNESS_DOWN',  // Keep 0 as backup
+  'KEY_1': 'BRIGHTNESS_UP',    // Keep 1 as backup
 };
 
 // Long press actions (hold for 2 seconds)
 // These override the normal button actions when held
 const LONG_PRESS_MAP = {
-  'KEY_LEFT': 'BACK',        // Hold LEFT for 2s → BACK
   'KEY_UP': 'CHANNEL_UP',    // Hold UP for 2s → CHANNEL_UP
   'KEY_DOWN': 'CHANNEL_DOWN', // Hold DOWN for 2s → CHANNEL_DOWN
 };

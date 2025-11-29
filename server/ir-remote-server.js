@@ -36,7 +36,7 @@ const BUTTON_MAP = {
     'KEY_STOP': 'BACK',        // FUNC/STOP button
 
     // Widget cycling
-    'KEY_PROG': 'WIDGET_CYCLE',  // EQ button
+    'KEY_EQUAL': 'WIDGET_CYCLE',  // EQ button
 };
 
 // Long press actions (hold for 2 seconds)

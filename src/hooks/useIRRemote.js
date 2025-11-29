@@ -261,24 +261,14 @@ export function useIRRemote(handleRemoteAction) {
             }
         }
 
-        // If demo mode is forced, start immediately and skip WebSocket connection
-        if (forceDemoMode) {
-            console.log('🎯 Demo mode forced via URL parameter (?demo=true)');
-            setTimeout(() => {
-                runDemoSequence();
-            }, 500); // Small delay to let app initialize
-        } else {
-            // Initial connection attempt
-            connect();
+        // Always start demo mode automatically
+        console.log('🎯 Auto-starting demo mode...');
+        setTimeout(() => {
+            runDemoSequence();
+        }, 500); // Small delay to let app initialize
 
-            // Fallback: if not connected after timeout, start demo mode
-            fallbackTimeoutRef.current = setTimeout(() => {
-                if (!connectionAttemptedRef.current && !demoRunningRef.current) {
-                    console.log('⚠️ Connection timeout - starting demo mode');
-                    runDemoSequence();
-                }
-            }, DEMO_TRIGGER_TIMEOUT);
-        }
+        // Optional: Try to connect to IR server in background (doesn't affect demo)
+        // connect();
 
         // Cleanup on unmount
         return () => {

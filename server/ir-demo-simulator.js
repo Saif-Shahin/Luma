@@ -87,9 +87,9 @@ class IRDemoSimulator {
         console.log('  2. Navigate to settings and rearrange widgets');
         console.log('  3. Move clock widget to center');
         console.log('  4. Power off\n');
-        console.log('⏳ Waiting 30 seconds for app to load...\n');
+        console.log('⏳ Waiting 7 seconds for setup screen to load...\n');
 
-        await this.sleep(30000);
+        await this.sleep(7000);
 
         const sequence = [
             // Setup process starts

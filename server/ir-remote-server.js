@@ -32,6 +32,9 @@ const BUTTON_MAP = {
     'KEY_VOLUMEDOWN': 'BRIGHTNESS_DOWN',
     'KEY_0': 'BRIGHTNESS_DOWN',
     'KEY_1': 'BRIGHTNESS_UP',
+
+    // Special functions
+    'KEY_EQUAL': 'EQ',
 };
 
 // Long press actions (hold for 2 seconds)

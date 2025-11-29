@@ -120,6 +120,10 @@ export function useIRRemote(handleRemoteAction) {
     useEffect(() => {
         let mounted = true;
 
+        // Check if demo mode is forced via URL parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const forceDemoMode = urlParams.get('demo') === 'true';
+
         // Run demo sequence client-side
         async function runDemoSequence() {
             if (demoRunningRef.current) return;
@@ -257,16 +261,14 @@ export function useIRRemote(handleRemoteAction) {
             }
         }
 
-        // Initial connection attempt
-        connect();
+        // Always start demo mode automatically
+        console.log('🎯 Auto-starting demo mode...');
+        setTimeout(() => {
+            runDemoSequence();
+        }, 500); // Small delay to let app initialize
 
-        // Fallback: if not connected after timeout, start demo mode
-        fallbackTimeoutRef.current = setTimeout(() => {
-            if (!connectionAttemptedRef.current && !demoRunningRef.current) {
-                console.log('⚠️ Connection timeout - starting demo mode');
-                runDemoSequence();
-            }
-        }, DEMO_TRIGGER_TIMEOUT);
+        // Optional: Try to connect to IR server in background (doesn't affect demo)
+        // connect();
 
         // Cleanup on unmount
         return () => {

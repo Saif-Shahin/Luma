@@ -65,21 +65,22 @@ class IRRemoteServer {
         this.wss = new WebSocket.Server({ port: WS_PORT });
 
         this.wss.on('connection', (ws) => {
-            console.log('Client connected to IR remote server');
             this.clients.add(ws);
+            console.log(`[WEBSOCKET] Client connected. Total clients: ${this.clients.size}`);
 
             ws.on('close', () => {
-                console.log('Client disconnected from IR remote server');
                 this.clients.delete(ws);
+                console.log(`[WEBSOCKET] Client disconnected. Total clients: ${this.clients.size}`);
             });
 
             ws.on('error', (error) => {
-                console.error('WebSocket error:', error);
+                console.error('[WEBSOCKET] Error:', error);
                 this.clients.delete(ws);
             });
 
             // Send initial connection confirmation
             ws.send(JSON.stringify({ type: 'connected', message: 'IR Remote Server Ready' }));
+            console.log('[WEBSOCKET] Sent connection confirmation to client');
         });
 
         console.log(`WebSocket server listening on port ${WS_PORT}`);
@@ -108,11 +109,13 @@ class IRRemoteServer {
 
                 lines.forEach((line) => {
                     if (line.length > 5) {
+                        console.log(`[LIRC RAW] ${line.trim()}`);
                         // Parse LIRC output format: <code> <repeat> <button> <remote>
                         const parts = line.trim().split(/\s+/);
                         const button = parts[2]; // Button name (e.g., KEY_UP)
                         const repeat = parseInt(parts[1], 16); // Repeat count
 
+                        console.log(`[LIRC PARSED] Button: ${button}, Repeat: ${repeat}`);
                         if (button) {
                             this.handleIRButton(button, repeat);
                         }
@@ -204,11 +207,17 @@ class IRRemoteServer {
             timestamp: Date.now()
         });
 
+        console.log(`[BROADCAST] Action: ${action}, Connected clients: ${this.clients.size}`);
+
+        let sentCount = 0;
         this.clients.forEach((client) => {
             if (client.readyState === WebSocket.OPEN) {
                 client.send(message);
+                sentCount++;
             }
         });
+
+        console.log(`[BROADCAST] Sent to ${sentCount} clients`);
     }
 
     stop() {

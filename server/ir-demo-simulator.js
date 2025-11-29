@@ -23,7 +23,8 @@ const ACTIONS = [
     'BRIGHTNESS_UP',
     'BRIGHTNESS_DOWN',
     'CHANNEL_UP',
-    'CHANNEL_DOWN'
+    'CHANNEL_DOWN',
+    'EQ'
 ];
 
 class IRDemoSimulator {
@@ -80,23 +81,101 @@ class IRDemoSimulator {
     }
 
     async runDemoSequence() {
-        console.log('\n🎬 Starting demo sequence...\n');
+        console.log('\n🎬 Starting Luma Mirror Demo Sequence...\n');
+        console.log('This demo will:');
+        console.log('  1. Complete initial setup (Montreal, Celsius, 12-hour time)');
+        console.log('  2. Navigate to settings and rearrange widgets');
+        console.log('  3. Move clock widget to center');
+        console.log('  4. Power off\n');
+        console.log('⏳ Waiting 30 seconds for app to load...\n');
+
+        await this.sleep(30000);
 
         const sequence = [
-            { action: 'POWER', delay: 2000, description: 'Turn on display' },
-            { action: 'OK', delay: 1500, description: 'Select widget' },
-            { action: 'RIGHT', delay: 1000, description: 'Navigate right' },
-            { action: 'RIGHT', delay: 1000, description: 'Navigate right' },
-            { action: 'OK', delay: 1500, description: 'Select widget' },
-            { action: 'DOWN', delay: 1000, description: 'Navigate down' },
-            { action: 'DOWN', delay: 1000, description: 'Navigate down' },
-            { action: 'OK', delay: 1500, description: 'Confirm selection' },
-            { action: 'BRIGHTNESS_UP', delay: 1000, description: 'Increase brightness' },
-            { action: 'BRIGHTNESS_UP', delay: 1000, description: 'Increase brightness' },
-            { action: 'BRIGHTNESS_DOWN', delay: 1000, description: 'Decrease brightness' },
-            { action: 'BACK', delay: 1000, description: 'Go back' },
-            { action: 'LEFT', delay: 1000, description: 'Navigate left' },
-            { action: 'UP', delay: 1000, description: 'Navigate up' },
+            // Setup process starts
+            { action: 'OK', delay: 3000, description: 'Start setup' },
+
+            // Brightness adjustment during setup
+            { action: 'BRIGHTNESS_UP', delay: 500, description: 'Adjust brightness up' },
+            { action: 'BRIGHTNESS_UP', delay: 500, description: 'Adjust brightness up' },
+            { action: 'BRIGHTNESS_UP', delay: 500, description: 'Adjust brightness up' },
+            { action: 'BRIGHTNESS_UP', delay: 500, description: 'Adjust brightness up' },
+            { action: 'BRIGHTNESS_DOWN', delay: 500, description: 'Adjust brightness down' },
+            { action: 'BRIGHTNESS_DOWN', delay: 500, description: 'Adjust brightness down' },
+            { action: 'BRIGHTNESS_DOWN', delay: 3000, description: 'Adjust brightness down' },
+
+            { action: 'OK', delay: 3000, description: 'Confirm brightness' },
+            { action: 'OK', delay: 10000, description: 'Continue setup' },
+
+            // City selection (Montreal)
+            { action: 'BACK', delay: 500, description: 'Back to city list' },
+            { action: 'DOWN', delay: 500, description: 'Navigate to Montreal' },
+            { action: 'OK', delay: 500, description: 'Select Montreal' },
+
+            // Navigate to temperature/time settings
+            { action: 'RIGHT', delay: 500, description: 'Navigate settings' },
+            { action: 'RIGHT', delay: 500, description: 'Navigate settings' },
+            { action: 'RIGHT', delay: 500, description: 'Navigate settings' },
+            { action: 'RIGHT', delay: 500, description: 'Navigate settings' },
+            { action: 'RIGHT', delay: 500, description: 'Navigate settings' },
+            { action: 'OK', delay: 500, description: 'Confirm setting' },
+
+            { action: 'DOWN', delay: 500, description: 'Navigate down' },
+            { action: 'DOWN', delay: 500, description: 'Navigate down' },
+            { action: 'DOWN', delay: 500, description: 'Navigate down' },
+            { action: 'RIGHT', delay: 3000, description: 'Select option' },
+
+            { action: 'OK', delay: 3000, description: 'Confirm selection' },
+            { action: 'OK', delay: 3000, description: 'Continue' },
+            { action: 'OK', delay: 10000, description: 'Complete setup' },
+
+            // Navigate to settings menu
+            { action: 'DOWN', delay: 500, description: 'Navigate to settings' },
+            { action: 'DOWN', delay: 500, description: 'Navigate down' },
+            { action: 'DOWN', delay: 500, description: 'Navigate down' },
+            { action: 'OK', delay: 6000, description: 'Enter settings' },
+
+            // Find rearrange widgets option
+            { action: 'DOWN', delay: 500, description: 'Navigate down' },
+            { action: 'OK', delay: 5000, description: 'Select option' },
+
+            { action: 'DOWN', delay: 500, description: 'Navigate down' },
+            { action: 'DOWN', delay: 500, description: 'Navigate down' },
+            { action: 'DOWN', delay: 500, description: 'Navigate down' },
+            { action: 'OK', delay: 5000, description: 'Enter rearrange widgets' },
+
+            { action: 'DOWN', delay: 500, description: 'Select clock widget' },
+            { action: 'OK', delay: 2000, description: 'Pick up clock widget' },
+
+            { action: 'BACK', delay: 500, description: 'Navigate' },
+            { action: 'BACK', delay: 5000, description: 'Navigate' },
+
+            { action: 'DOWN', delay: 500, description: 'Navigate down' },
+            { action: 'OK', delay: 500, description: 'Confirm' },
+            { action: 'DOWN', delay: 500, description: 'Navigate down' },
+            { action: 'OK', delay: 7000, description: 'Place widget in center' },
+
+            // Adjust widget position
+            { action: 'EQ', delay: 500, description: 'Fine-tune position' },
+            { action: 'EQ', delay: 500, description: 'Fine-tune position' },
+            { action: 'UP', delay: 500, description: 'Adjust up' },
+            { action: 'UP', delay: 500, description: 'Adjust up' },
+            { action: 'RIGHT', delay: 500, description: 'Adjust right' },
+            { action: 'RIGHT', delay: 500, description: 'Adjust right' },
+            { action: 'RIGHT', delay: 500, description: 'Adjust right' },
+            { action: 'OK', delay: 500, description: 'Confirm position' },
+            { action: 'DOWN', delay: 500, description: 'Navigate down' },
+            { action: 'OK', delay: 5000, description: 'Save changes' },
+
+            // Final brightness adjustments
+            { action: 'BRIGHTNESS_UP', delay: 500, description: 'Increase brightness' },
+            { action: 'BRIGHTNESS_UP', delay: 500, description: 'Increase brightness' },
+            { action: 'BRIGHTNESS_UP', delay: 500, description: 'Increase brightness' },
+            { action: 'BRIGHTNESS_UP', delay: 500, description: 'Increase brightness' },
+            { action: 'BRIGHTNESS_UP', delay: 5000, description: 'Maximum brightness' },
+
+            // Power off
+            { action: 'POWER', delay: 1000, description: 'Power off display' },
         ];
 
         for (const step of sequence) {

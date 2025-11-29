@@ -12,7 +12,7 @@ import { useEffect, useRef } from 'react';
 
 const WS_URL = 'ws://localhost:8765';
 const RECONNECT_DELAY = 3000; // 3 seconds
-const DEMO_START_DELAY = 7000; // 7 seconds - wait for setup screen to load
+const DEMO_START_DELAY = 4000; // 4 seconds - wait for setup screen to load
 const DEMO_TRIGGER_TIMEOUT = 5000; // 5 seconds - if can't connect, start demo
 
 // Demo sequence matching the server simulator
@@ -58,7 +58,7 @@ const DEMO_SEQUENCE = [
     { action: 'DOWN', delay: 500 },
     { action: 'DOWN', delay: 500 },
     { action: 'DOWN', delay: 500 },
-    { action: 'OK', delay: 6000 },
+    { action: 'OK', delay: 7000 },
 
     // Find rearrange widgets option
     { action: 'DOWN', delay: 500 },
@@ -127,7 +127,7 @@ export function useIRRemote(handleRemoteAction) {
             console.log('%c━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'color: #ff00ff; font-weight: bold');
             console.log('%c🎬 DEMO MODE ACTIVATED!', 'color: #ff00ff; font-size: 20px; font-weight: bold; background: #000');
             console.log('%c━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'color: #ff00ff; font-weight: bold');
-            console.log('%c⏳ Waiting 7 seconds for setup screen to load...', 'color: #ffff00; font-size: 14px');
+            console.log('%c⏳ Waiting 4 seconds for setup screen to load...', 'color: #ffff00; font-size: 14px');
             console.log('BEFORE sleep - mounted:', mounted, 'demoRunning:', demoRunningRef.current);
 
             // Wait for setup screen to load
@@ -155,6 +155,9 @@ export function useIRRemote(handleRemoteAction) {
                 console.log('%c🎮 DEMO ACTION [' + (i + 1) + '/' + DEMO_SEQUENCE.length + ']: ' + step.action,
                     'color: #00ff00; font-size: 14px; font-weight: bold; background: #001100; padding: 4px');
                 handlerRef.current(step.action);
+
+                console.log('%c⏱️  Delay: ' + step.delay + 'ms (' + (step.delay / 1000) + 's)',
+                    'color: #ffaa00; font-size: 12px; font-style: italic');
                 await sleep(step.delay);
             }
 

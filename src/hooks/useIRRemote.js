@@ -3,19 +3,143 @@
  *
  * Connects to the IR remote WebSocket server and triggers
  * remote actions when physical IR remote buttons are pressed.
+ *
+ * If WebSocket connection fails (e.g., on deployed site),
+ * automatically runs client-side demo mode.
  */
 
 import { useEffect, useRef } from 'react';
 
 const WS_URL = 'ws://localhost:8765';
 const RECONNECT_DELAY = 3000; // 3 seconds
+const DEMO_START_DELAY = 7000; // 7 seconds - wait for setup screen to load
+const DEMO_TRIGGER_TIMEOUT = 5000; // 5 seconds - if can't connect, start demo
+
+// Demo sequence matching the server simulator
+const DEMO_SEQUENCE = [
+    // Setup process starts
+    { action: 'OK', delay: 3000 },
+
+    // Brightness adjustment during setup
+    { action: 'BRIGHTNESS_UP', delay: 500 },
+    { action: 'BRIGHTNESS_UP', delay: 500 },
+    { action: 'BRIGHTNESS_UP', delay: 500 },
+    { action: 'BRIGHTNESS_UP', delay: 500 },
+    { action: 'BRIGHTNESS_DOWN', delay: 500 },
+    { action: 'BRIGHTNESS_DOWN', delay: 500 },
+    { action: 'BRIGHTNESS_DOWN', delay: 3000 },
+
+    { action: 'OK', delay: 3000 },
+    { action: 'OK', delay: 10000 },
+
+    // City selection (Montreal)
+    { action: 'BACK', delay: 500 },
+    { action: 'DOWN', delay: 500 },
+    { action: 'OK', delay: 500 },
+
+    // Navigate to temperature/time settings
+    { action: 'RIGHT', delay: 500 },
+    { action: 'RIGHT', delay: 500 },
+    { action: 'RIGHT', delay: 500 },
+    { action: 'RIGHT', delay: 500 },
+    { action: 'RIGHT', delay: 500 },
+    { action: 'OK', delay: 500 },
+
+    { action: 'DOWN', delay: 500 },
+    { action: 'DOWN', delay: 500 },
+    { action: 'DOWN', delay: 500 },
+    { action: 'RIGHT', delay: 3000 },
+
+    { action: 'OK', delay: 3000 },
+    { action: 'OK', delay: 3000 },
+    { action: 'OK', delay: 10000 },
+
+    // Navigate to settings menu
+    { action: 'DOWN', delay: 500 },
+    { action: 'DOWN', delay: 500 },
+    { action: 'DOWN', delay: 500 },
+    { action: 'OK', delay: 6000 },
+
+    // Find rearrange widgets option
+    { action: 'DOWN', delay: 500 },
+    { action: 'OK', delay: 5000 },
+
+    { action: 'DOWN', delay: 500 },
+    { action: 'DOWN', delay: 500 },
+    { action: 'DOWN', delay: 500 },
+    { action: 'OK', delay: 5000 },
+
+    { action: 'DOWN', delay: 500 },
+    { action: 'OK', delay: 2000 },
+
+    { action: 'BACK', delay: 500 },
+    { action: 'BACK', delay: 5000 },
+
+    { action: 'DOWN', delay: 500 },
+    { action: 'OK', delay: 500 },
+    { action: 'DOWN', delay: 500 },
+    { action: 'OK', delay: 7000 },
+
+    // Adjust widget position
+    { action: 'EQ', delay: 500 },
+    { action: 'EQ', delay: 500 },
+    { action: 'UP', delay: 500 },
+    { action: 'UP', delay: 500 },
+    { action: 'RIGHT', delay: 500 },
+    { action: 'RIGHT', delay: 500 },
+    { action: 'RIGHT', delay: 500 },
+    { action: 'OK', delay: 500 },
+    { action: 'DOWN', delay: 500 },
+    { action: 'OK', delay: 5000 },
+
+    // Final brightness adjustments
+    { action: 'BRIGHTNESS_UP', delay: 500 },
+    { action: 'BRIGHTNESS_UP', delay: 500 },
+    { action: 'BRIGHTNESS_UP', delay: 500 },
+    { action: 'BRIGHTNESS_UP', delay: 500 },
+    { action: 'BRIGHTNESS_UP', delay: 5000 },
+
+    // Power off
+    { action: 'POWER', delay: 1000 },
+];
 
 export function useIRRemote(handleRemoteAction) {
     const wsRef = useRef(null);
     const reconnectTimeoutRef = useRef(null);
+    const demoTimeoutRef = useRef(null);
+    const demoRunningRef = useRef(false);
+    const connectionAttemptedRef = useRef(false);
 
     useEffect(() => {
         let mounted = true;
+
+        // Run demo sequence client-side
+        async function runDemoSequence() {
+            if (demoRunningRef.current) return;
+
+            demoRunningRef.current = true;
+            console.log('🎬 Starting client-side demo mode...');
+            console.log('⏳ Waiting for setup screen to load...');
+
+            // Wait for setup screen to load
+            await sleep(DEMO_START_DELAY);
+
+            // Run through demo sequence
+            for (const step of DEMO_SEQUENCE) {
+                if (!mounted || !demoRunningRef.current) break;
+
+                console.log(`🎮 Demo: ${step.action}`);
+                handleRemoteAction(step.action);
+                await sleep(step.delay);
+            }
+
+            console.log('✅ Demo sequence complete!');
+            demoRunningRef.current = false;
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
 
         function connect() {
             // Skip if component unmounted or already connected
@@ -31,6 +155,12 @@ export function useIRRemote(handleRemoteAction) {
 
                 ws.onopen = () => {
                     console.log('✅ Connected to IR remote server');
+                    connectionAttemptedRef.current = true;
+                    // Cancel demo mode if connected successfully
+                    if (demoTimeoutRef.current) {
+                        clearTimeout(demoTimeoutRef.current);
+                        demoTimeoutRef.current = null;
+                    }
                 };
 
                 ws.onmessage = (event) => {
@@ -50,14 +180,28 @@ export function useIRRemote(handleRemoteAction) {
 
                 ws.onerror = (error) => {
                     console.error('WebSocket error:', error);
+
+                    // If first connection fails, trigger demo mode
+                    if (!connectionAttemptedRef.current && !demoRunningRef.current && !demoTimeoutRef.current) {
+                        console.log('⚠️ Cannot connect to IR server - starting demo mode');
+                        demoTimeoutRef.current = setTimeout(() => {
+                            runDemoSequence();
+                        }, 1000);
+                    }
                 };
 
                 ws.onclose = () => {
                     console.log('Disconnected from IR remote server');
                     wsRef.current = null;
 
-                    // Attempt to reconnect after delay
-                    if (mounted) {
+                    // If never connected successfully, trigger demo mode
+                    if (!connectionAttemptedRef.current && !demoRunningRef.current && !demoTimeoutRef.current) {
+                        console.log('⚠️ Cannot connect to IR server - starting demo mode');
+                        demoTimeoutRef.current = setTimeout(() => {
+                            runDemoSequence();
+                        }, 1000);
+                    } else if (connectionAttemptedRef.current && mounted) {
+                        // If was connected before, try to reconnect
                         console.log(`Reconnecting in ${RECONNECT_DELAY / 1000} seconds...`);
                         reconnectTimeoutRef.current = setTimeout(connect, RECONNECT_DELAY);
                     }
@@ -65,22 +209,33 @@ export function useIRRemote(handleRemoteAction) {
             } catch (error) {
                 console.error('Failed to create WebSocket connection:', error);
 
-                // Retry connection after delay
-                if (mounted) {
+                // If can't create connection, trigger demo mode
+                if (!connectionAttemptedRef.current && !demoRunningRef.current && !demoTimeoutRef.current) {
+                    console.log('⚠️ Cannot connect to IR server - starting demo mode');
+                    demoTimeoutRef.current = setTimeout(() => {
+                        runDemoSequence();
+                    }, 1000);
+                } else if (mounted) {
+                    // Retry connection after delay
                     reconnectTimeoutRef.current = setTimeout(connect, RECONNECT_DELAY);
                 }
             }
         }
 
-        // Initial connection
+        // Initial connection attempt
         connect();
 
         // Cleanup on unmount
         return () => {
             mounted = false;
+            demoRunningRef.current = false;
 
             if (reconnectTimeoutRef.current) {
                 clearTimeout(reconnectTimeoutRef.current);
+            }
+
+            if (demoTimeoutRef.current) {
+                clearTimeout(demoTimeoutRef.current);
             }
 
             if (wsRef.current) {
@@ -91,6 +246,7 @@ export function useIRRemote(handleRemoteAction) {
     }, [handleRemoteAction]);
 
     return {
-        isConnected: wsRef.current?.readyState === WebSocket.OPEN
+        isConnected: wsRef.current?.readyState === WebSocket.OPEN,
+        isDemoMode: demoRunningRef.current
     };
 }

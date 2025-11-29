@@ -13,7 +13,7 @@ import { useEffect, useRef } from 'react';
 const WS_URL = 'ws://localhost:8765';
 const RECONNECT_DELAY = 3000; // 3 seconds
 const DEMO_START_DELAY = 4000; // 4 seconds - wait for setup screen to load
-const DEMO_TRIGGER_TIMEOUT = 5000; // 5 seconds - if can't connect, start demo
+const DEMO_TRIGGER_TIMEOUT = 3000; // 3 seconds - if can't connect, start demo
 
 // Demo sequence matching the server simulator
 const DEMO_SEQUENCE = [
@@ -58,7 +58,7 @@ const DEMO_SEQUENCE = [
     { action: 'DOWN', delay: 500 },
     { action: 'DOWN', delay: 500 },
     { action: 'DOWN', delay: 500 },
-    { action: 'OK', delay: 7000 },
+    { action: 'OK', delay: 10000 },
 
     // Find rearrange widgets option
     { action: 'DOWN', delay: 500 },
@@ -107,6 +107,7 @@ export function useIRRemote(handleRemoteAction) {
     const wsRef = useRef(null);
     const reconnectTimeoutRef = useRef(null);
     const demoTimeoutRef = useRef(null);
+    const fallbackTimeoutRef = useRef(null);
     const demoRunningRef = useRef(false);
     const connectionAttemptedRef = useRef(false);
     const handlerRef = useRef(handleRemoteAction);
@@ -191,6 +192,10 @@ export function useIRRemote(handleRemoteAction) {
                         clearTimeout(demoTimeoutRef.current);
                         demoTimeoutRef.current = null;
                     }
+                    if (fallbackTimeoutRef.current) {
+                        clearTimeout(fallbackTimeoutRef.current);
+                        fallbackTimeoutRef.current = null;
+                    }
                 };
 
                 ws.onmessage = (event) => {
@@ -255,10 +260,22 @@ export function useIRRemote(handleRemoteAction) {
         // Initial connection attempt
         connect();
 
+        // Fallback: if not connected after timeout, start demo mode
+        fallbackTimeoutRef.current = setTimeout(() => {
+            if (!connectionAttemptedRef.current && !demoRunningRef.current) {
+                console.log('⚠️ Connection timeout - starting demo mode');
+                runDemoSequence();
+            }
+        }, DEMO_TRIGGER_TIMEOUT);
+
         // Cleanup on unmount
         return () => {
             mounted = false;
             demoRunningRef.current = false;
+
+            if (fallbackTimeoutRef.current) {
+                clearTimeout(fallbackTimeoutRef.current);
+            }
 
             if (reconnectTimeoutRef.current) {
                 clearTimeout(reconnectTimeoutRef.current);

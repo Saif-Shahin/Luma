@@ -580,15 +580,10 @@ export function AppProvider({ children }) {
 
             const bounds = boundaries[currentWidget];
 
-            // Channel buttons to cycle through widgets
-            if (button === 'CHANNEL_UP') {
+            // EQ button to cycle through widgets
+            if (button === 'WIDGET_CYCLE') {
                 updateState({
-                    rearrangeWidgetIndex: Math.min(2, rearrangeWidgetIndex + 1),
-                });
-                return;
-            } else if (button === 'CHANNEL_DOWN') {
-                updateState({
-                    rearrangeWidgetIndex: Math.max(0, rearrangeWidgetIndex - 1),
+                    rearrangeWidgetIndex: (rearrangeWidgetIndex + 1) % 3, // Cycle 0->1->2->0
                 });
                 return;
             }

@@ -31,16 +31,18 @@ const BUTTON_MAP = {
     // Brightness controls
     'KEY_VOLUMEUP': 'BRIGHTNESS_UP',
     'KEY_VOLUMEDOWN': 'BRIGHTNESS_DOWN',
-    'KEY_0': 'BRIGHTNESS_DOWN',
-    'KEY_1': 'BRIGHTNESS_UP',
+
+    // Back button
+    'KEY_STOP': 'BACK',        // FUNC/STOP button
+
+    // Widget cycling
+    'KEY_PROG': 'WIDGET_CYCLE',  // EQ button
 };
 
 // Long press actions (hold for 2 seconds)
 // These override the normal button actions when held
 const LONG_PRESS_MAP = {
-    'KEY_LEFT': 'BACK',        // Hold LEFT for 2s → BACK
-    'KEY_UP': 'CHANNEL_UP',    // Hold UP for 2s → CHANNEL_UP
-    'KEY_DOWN': 'CHANNEL_DOWN', // Hold DOWN for 2s → CHANNEL_DOWN
+    // No long press mappings currently used
 };
 
 // Long press threshold (in repeat counts)

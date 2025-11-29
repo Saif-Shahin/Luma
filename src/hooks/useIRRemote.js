@@ -109,6 +109,12 @@ export function useIRRemote(handleRemoteAction) {
     const demoTimeoutRef = useRef(null);
     const demoRunningRef = useRef(false);
     const connectionAttemptedRef = useRef(false);
+    const handlerRef = useRef(handleRemoteAction);
+
+    // Keep handler ref up to date
+    useEffect(() => {
+        handlerRef.current = handleRemoteAction;
+    }, [handleRemoteAction]);
 
     useEffect(() => {
         let mounted = true;
@@ -122,9 +128,12 @@ export function useIRRemote(handleRemoteAction) {
             console.log('%c🎬 DEMO MODE ACTIVATED!', 'color: #ff00ff; font-size: 20px; font-weight: bold; background: #000');
             console.log('%c━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'color: #ff00ff; font-weight: bold');
             console.log('%c⏳ Waiting 7 seconds for setup screen to load...', 'color: #ffff00; font-size: 14px');
+            console.log('BEFORE sleep - mounted:', mounted, 'demoRunning:', demoRunningRef.current);
 
             // Wait for setup screen to load
             await sleep(DEMO_START_DELAY);
+
+            console.log('AFTER sleep - mounted:', mounted, 'demoRunning:', demoRunningRef.current);
 
             console.log('%c🔍 DEBUG: About to run demo sequence', 'color: yellow; font-size: 14px');
             console.log('Sequence length:', DEMO_SEQUENCE.length);
@@ -145,7 +154,7 @@ export function useIRRemote(handleRemoteAction) {
 
                 console.log('%c🎮 DEMO ACTION [' + (i + 1) + '/' + DEMO_SEQUENCE.length + ']: ' + step.action,
                     'color: #00ff00; font-size: 14px; font-weight: bold; background: #001100; padding: 4px');
-                handleRemoteAction(step.action);
+                handlerRef.current(step.action);
                 await sleep(step.delay);
             }
 
@@ -187,7 +196,7 @@ export function useIRRemote(handleRemoteAction) {
 
                         if (data.type === 'button_press' && data.action) {
                             console.log(`🎮 IR Remote: ${data.action}`);
-                            handleRemoteAction(data.action);
+                            handlerRef.current(data.action);
                         } else if (data.type === 'connected') {
                             console.log(`📡 ${data.message}`);
                         }
@@ -261,7 +270,7 @@ export function useIRRemote(handleRemoteAction) {
                 wsRef.current = null;
             }
         };
-    }, [handleRemoteAction]);
+    }, []); // Empty dependency array - effect runs once on mount
 
     return {
         isConnected: wsRef.current?.readyState === WebSocket.OPEN,

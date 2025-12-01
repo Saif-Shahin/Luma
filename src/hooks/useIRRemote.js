@@ -100,7 +100,14 @@ const DEMO_SEQUENCE = [
     { action: 'BRIGHTNESS_UP', delay: 5000 },
 
     // Power off
-    { action: 'POWER', delay: 1000 },
+    { action: 'POWER', delay: 3000 },
+
+    // Power back on
+    { action: 'POWER', delay: 2000 },
+
+    // Return to main screen
+    { action: 'BACK', delay: 500 },
+    { action: 'BACK', delay: 1000 },
 ];
 
 export function useIRRemote(handleRemoteAction) {

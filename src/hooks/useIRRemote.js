@@ -269,10 +269,10 @@ export function useIRRemote(handleRemoteAction) {
         }
 
         // Always start demo mode automatically
-        console.log('🎯 Auto-starting demo mode...');
-        setTimeout(() => {
-            runDemoSequence();
-        }, 500); // Small delay to let app initialize
+        // console.log('🎯 Auto-starting demo mode...');
+        // setTimeout(() => {
+        //     runDemoSequence();
+        // }, 500); // Small delay to let app initialize
 
         // Optional: Try to connect to IR server in background (doesn't affect demo)
         connect();

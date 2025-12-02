@@ -275,7 +275,7 @@ export function useIRRemote(handleRemoteAction) {
         }, 500); // Small delay to let app initialize
 
         // Optional: Try to connect to IR server in background (doesn't affect demo)
-        // connect();
+        connect();
 
         // Cleanup on unmount
         return () => {

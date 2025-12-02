@@ -6,7 +6,7 @@
  * to connected clients via WebSocket.
  */
 
-import WebSocket from 'ws';
+import WebSocket, { WebSocketServer } from 'ws';
 import { spawn, exec } from 'child_process';
 
 // Configuration
@@ -62,7 +62,7 @@ class IRRemoteServer {
 
     start() {
         // Create WebSocket server
-        this.wss = new WebSocket.Server({ port: WS_PORT });
+        this.wss = new WebSocketServer({ port: WS_PORT });
 
         this.wss.on('connection', (ws) => {
             console.log('Client connected to IR remote server');
